@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medi-Assist AI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    
+    <link rel="stylesheet" href="{{ url_for('static', filename='chat.css') }}">
+</head>
+<body>
+    <div class="app">
+        <button id="themeToggle" class="theme-toggle">
+            <i class="bi bi-moon-stars-fill"></i>
+        </button>
+
+        <div class="chat-card">
+            <header class="chat-header">
+                <div class="avatar">
+                    <img src="https://cdn-icons-png.flaticon.com/512/387/387569.png" alt="AI">
+                    <span class="online"></span>
+                </div>
+                <div class="info">
+                    <h1>Medi-Assist AI</h1>
+                    <p>Your Health Companion</p>
+                </div>
+            </header>
+
+            <main id="messages" class="messages">
+                </main>
+
+            <footer class="chat-footer">
+                <form id="messageArea" class="input-group">
+                    <input type="text" id="text" placeholder="Ask in English..." autocomplete="off" required>
+                    <button type="submit" class="send">
+                        <i class="bi bi-send-fill"></i>
+                    </button>
+                </form>
+            </footer>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='chat.js') }}"></script> 
+</body>
+</html>

@@ -1,0 +1,326 @@
+/* =============================================
+   1. ROOT & THEME VARIABLES
+   ============================================= */
+:root {
+    --bg: #f5fafa;
+    --card: rgba(255,255,255,0.85);
+    --header-grad: linear-gradient(135deg, #008c99, #00c4b4);
+    --user-bubble: #008c99;
+    --bot-bubble: #e6f7f8;
+    --text: #212529;
+    --muted: #6c757d;
+    --border: #dee2e6;
+    --shadow-sm: 0 2px 8px rgba(0,0,0,.07);
+    --shadow-md: 0 8px 32px rgba(0,0,0,.12);
+}
+
+html.dark {
+    --bg: #0d1b2a;
+    --card: rgba(20,30,48,0.85);
+    --header-grad: linear-gradient(135deg, #006b75, #00a39a);
+    --user-bubble: #00c4b4;
+    --bot-bubble: #1b263b;
+    --text: #e5e5e5;
+    --muted: #9ba6b2;
+    --border: #2d3748;
+}
+
+/* =============================================
+   2. GLOBAL & FLUID TYPOGRAPHY
+   ============================================= */
+*, *::before, *::after { box-sizing: border-box; }
+html { font-size: 100%; }
+body, html {
+    margin: 0; height: 100%; overflow: hidden;
+    font-family: 'Inter', sans-serif;
+    background: var(--bg); color: var(--text);
+}
+
+h1 { font-size: clamp(1.1rem, 2.5vw, 1.3rem); }
+p  { font-size: clamp(0.75rem, 2vw, 0.85rem); }
+
+/* =============================================
+   3. APP LAYOUT
+   ============================================= */
+.app {
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: clamp(0.5rem, 2vw, 1rem);
+    position: relative;
+}
+
+.chat-card {
+    width: 100%;
+    max-width: 500px;
+    height: 100vh;
+    max-height: 860px;
+    background: var(--card);
+    backdrop-filter: blur(12px);
+    border-radius: clamp(12px, 3vw, 24px);
+    overflow: hidden;
+    box-shadow: var(--shadow-md);
+    display: flex;
+    flex-direction: column;
+    transition: all 0.3s ease;
+}
+
+/* =============================================
+   4. HEADER
+   ============================================= */
+.chat-header {
+    background: var(--header-grad);
+    color: #fff;
+    padding: clamp(0.75rem, 2.5vw, 1rem) clamp(1rem, 3vw, 1.25rem);
+    display: flex;
+    align-items: center;
+    gap: clamp(0.75rem, 2vw, 1rem);
+    flex-shrink: 0;
+}
+
+.chat-header .avatar { position: relative; flex-shrink: 0; }
+.chat-header img {
+    width: clamp(36px, 8vw, 48px);
+    height: clamp(36px, 8vw, 48px);
+    border-radius: 50%;
+    border: 2px solid #fff;
+    object-fit: cover;
+}
+.chat-header .online {
+    position: absolute; bottom: 0; right: 0;
+    width: clamp(10px, 2.5vw, 14px);
+    height: clamp(10px, 2.5vw, 14px);
+    background: #4cd137;
+    border: 2px solid var(--card);
+    border-radius: 50%;
+}
+
+/* =============================================
+   5. MESSAGES
+   ============================================= */
+.messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: clamp(0.75rem, 2.5vw, 1rem) clamp(1rem, 3vw, 1.25rem);
+    display: flex;
+    flex-direction: column;
+    gap: clamp(0.75rem, 2vw, 1rem);
+    scroll-behavior: smooth;
+}
+.messages::-webkit-scrollbar { width: 5px; }
+.messages::-webkit-scrollbar-thumb { background: rgba(0,0,0,.15); border-radius: 3px; }
+
+.msg {
+    display: flex;
+    flex-direction: column;
+    max-width: 85%;
+    animation-duration: .35s;
+}
+.msg.user { align-self: flex-end; align-items: flex-end; }
+.msg.bot  { align-self: flex-start; }
+
+.msg .bubble {
+    padding: clamp(0.6rem, 2vw, 0.75rem) clamp(0.9rem, 2.5vw, 1rem);
+    border-radius: 18px;
+    line-height: 1.5;
+    font-size: clamp(0.85rem, 2.2vw, 0.95rem);
+    word-break: break-word;
+    box-shadow: var(--shadow-sm);
+}
+.msg.user .bubble {
+    background: var(--user-bubble);
+    color: #fff;
+    border-bottom-right-radius: 4px;
+}
+.msg.bot .bubble {
+    background: var(--bot-bubble);
+    color: var(--text);
+    border-bottom-left-radius: 4px;
+}
+
+.markdown-body p { margin: 0.25rem 0; }
+.markdown-body strong { font-weight: 600; }
+.markdown-body ul { margin: 0.4rem 0; padding-left: 1.2rem; }
+.markdown-body code {
+    background: rgba(0,0,0,.07);
+    padding: 0.15rem 0.35rem;
+    border-radius: 4px;
+    font-size: 0.85em;
+}
+
+.msg time {
+    font-size: clamp(0.65rem, 1.8vw, 0.7rem);
+    color: var(--muted);
+    margin-top: 0.25rem;
+}
+
+/* =============================================
+   6. TYPING INDICATOR (FIXED!)
+   ============================================= */
+/* TYPING BUBBLE – matches your screenshot exactly */
+.typing-indicator .bubble {
+    display: flex;
+    gap: 4px;
+    padding: 0.5rem 0.8rem;
+    background: var(--bot-bubble);
+    border-radius: 18px;
+    border-bottom-left-radius: 4px;
+}
+.typing-indicator span {
+    width: 7px;
+    height: 7px;
+    background: var(--user-bubble);
+    border-radius: 50%;
+    animation: pulse 1.4s infinite ease-in-out;
+}
+.typing-indicator span:nth-child(2) { animation-delay: -0.7s; }
+.typing-indicator span:nth-child(3) { animation-delay: -0.35s; }
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); opacity: .6; }
+    50%     { transform: scale(1.4); opacity: 1; }
+}
+/* =============================================
+   7. INPUT FOOTER
+   ============================================= */
+.chat-footer {
+    padding: clamp(0.6rem, 2vw, 0.75rem) clamp(0.8rem, 2.5vw, 1rem);
+    background: var(--card);
+    border-top: 1px solid var(--border);
+    flex-shrink: 0;
+}
+
+.input-group {
+    display: flex;
+    align-items: center;
+    background: var(--bg);
+    border-radius: 30px;
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+    height: clamp(44px, 10vw, 52px);
+}
+
+.input-group input {
+    flex: 1;
+    border: none;
+    background: transparent;
+    padding: 0 clamp(0.9rem, 2.5vw, 1rem);
+    font-size: clamp(0.9rem, 2.3vw, 0.95rem);
+    outline: none;
+    color: var(--text);
+}
+.input-group input::placeholder { color: var(--muted); }
+
+.input-group button {
+    width: clamp(44px, 10vw, 52px);
+    height: 100%;
+    border: none;
+    background: var(--user-bubble);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background .2s, transform .1s;
+    font-size: clamp(1rem, 2.5vw, 1.1rem);
+}
+.input-group button:hover { background: #006b75; }
+.input-group button:active { transform: scale(0.92); }
+
+/* =============================================
+   8. THEME TOGGLE
+   ============================================= */
+.theme-toggle {
+    position: absolute;
+    top: clamp(0.75rem, 2vw, 1rem);
+    right: clamp(0.75rem, 2vw, 1rem);
+    background: transparent;
+    border: none;
+    font-size: clamp(1.2rem, 3vw, 1.4rem);
+    color: var(--text);
+    cursor: pointer;
+    transition: transform .2s;
+}
+.theme-toggle:hover { transform: scale(1.1); }
+
+.lang-btn {
+    background: var(--bot-bubble);
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+.lang-btn:hover { background: #cce5ff; transform: scale(1.05); }
+
+        .language-prompt {
+            text-align: center;
+            padding: 20px 0;
+        }
+        .language-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-top: 16px;
+        }
+        .lang-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            padding: 12px 16px;
+            border: 2px solid var(--border, #e0e0e0);
+            border-radius: 12px;
+            background: var(--bg-secondary, #f8f9fa);
+            color: var(--text, #333);
+            font-size: 0.95rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-height: 60px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .lang-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+            border-color: var(--primary, #007bff);
+        }
+        .lang-btn:active {
+            transform: translateY(0);
+        }
+        .lang-btn.selected {
+            border-color: var(--primary, #007bff);
+            background: var(--primary-light, #e3f2fd);
+            color: var(--primary, #007bff);
+        }
+        .flag-emoji {
+            font-size: 1.5rem;
+        }
+        .dark .lang-btn {
+            background: var(--bg-secondary-dark, #2a2a2a);
+            border-color: var(--border-dark, #444);
+            color: var(--text-dark, #e0e0e0);
+        }
+        .dark .lang-btn:hover {
+            border-color: var(--primary-dark, #4dabf7);
+        }
+
+/* =============================================
+   9. RESPONSIVE BREAKPOINTS
+   ============================================= */
+@media (max-width: 480px) {
+    .chat-card { border-radius: 16px; }
+}
+@media (min-width: 576px) {
+    .chat-card { height: 92vh; max-width: 80vw; }
+}
+@media (min-width: 992px) {
+    .app { padding: 2rem; }
+    .chat-card { height: 88vh; max-width: 460px; }
+}
+@media (min-width: 1200px) {
+    .chat-card { max-width: 500px; }
+}
+@media (min-width: 1600px) {
+    .chat-card { max-width: 520px; }
+}
