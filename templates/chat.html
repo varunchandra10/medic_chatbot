@@ -1,50 +1,155 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Medi-Assist AI</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
-    
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    
-    <link rel="stylesheet" href="{{ url_for('static', filename='chat.css') }}">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Medi-Assist AI — Chat</title>
+
+  <!-- Tailwind (utility helpers) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Icons & Markdown -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+  <!-- Project CSS -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='chat.css') }}">
 </head>
+
 <body>
-    <div class="app">
-        <button id="themeToggle" class="theme-toggle">
-            <i class="bi bi-moon-stars-fill"></i>
+  <div class="app-shell">
+    <!-- SIDEBAR -->
+    <aside id="sidebar" class="sidebar" aria-label="Sidebar">
+      <!-- TOP -->
+      <div>
+        <div class="top-row">
+          <div class="brand" aria-hidden="true">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" style="display:block">
+              <rect width="24" height="24" rx="6" fill="var(--primary)"></rect>
+              <path d="M7 12h10M7 8h10M7 16h6" stroke="#fff" stroke-width="1.4" stroke-linecap="round" />
+            </svg>
+            Medi-Assist
+          </div>
+
+          <button id="closeSidebarBtn" class="btn-ghost md:hidden" title="Close sidebar"><i
+              class="bi bi-x-lg"></i></button>
+        </div>
+
+        <!-- NAV -->
+        <div class="nav-links">
+          <button id="newChatBtn" class="btn new-chat">
+            <i class="bi bi-plus-lg"></i> New chat
+          </button>
+
+          <a href="#" class="sidebar-link">
+            <i class="bi bi-clock-history"></i> <span>History</span>
+          </a>
+
+          <a id="quickTipsBtn" class="sidebar-link">
+            <i class="bi bi-lightbulb"></i> <span>Quick tips</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- BOTTOM -->
+      <div class="sidebar-bottom">
+        <button id="themeToggle" class="btn-ghost" title="Toggle theme">
+          <i class="bi bi-moon-stars-fill"></i>
+          <span>Theme</span>
         </button>
 
-        <div class="chat-card">
-            <header class="chat-header">
-                <div class="avatar">
-                    <img src="https://cdn-icons-png.flaticon.com/512/387/387569.png" alt="AI">
-                    <span class="online"></span>
-                </div>
-                <div class="info">
-                    <h1>Medi-Assist AI</h1>
-                    <p>Your Health Companion</p>
-                </div>
-            </header>
+        <button id="logoutBtn" class="btn-ghost logout" title="Logout">
+          <i class="bi bi-door-open"></i>
+          <span>Logout</span>
+        </button>
+      </div>
+    </aside>
 
-            <main id="messages" class="messages">
-                </main>
-
-            <footer class="chat-footer">
-                <form id="messageArea" class="input-group">
-                    <input type="text" id="text" placeholder="Ask in English..." autocomplete="off" required>
-                    <button type="submit" class="send">
-                        <i class="bi bi-send-fill"></i>
-                    </button>
-                </form>
-            </footer>
+    <!-- MAIN PANEL -->
+    <main class="panel" role="main">
+      <!-- HEADER -->
+      <header class="header" role="banner">
+        <div class="header-left">
+          <button id="menuToggleBtn" class="btn-ghost md:hidden" title="Open sidebar"><i
+              class="bi bi-list"></i></button>
+          <h1>Medi-Assist Chat</h1>
         </div>
-    </div>
 
-    <script src="{{ url_for('static', filename='chat.js') }}"></script> 
+        <div class="header-center" aria-hidden="false">
+          <div id="langSelectDesktop" class="lang-pills" aria-label="Language selection"></div>
+
+          <div class="lang-dropdown" style="display:none;">
+            <select id="langDropdown" class="lang-dropdown-select" aria-label="Select language">
+              <option value="en">English</option>
+              <option value="hi">हिन्दी</option>
+              <option value="ta">தமிழ்</option>
+              <option value="te">తెలుగు</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="header-right" style="position:relative">
+          <!-- user initial avatar (Jinja inject from session if present) -->
+          <button id="userMenuBtn" class="btn-ghost" aria-haspopup="true"
+            title="{{ session.get('user_name') or session.get('user_email') or 'Account' }}">
+            <div class="header-avatar">
+              {{ (session.get('user_name') or session.get('user_email') or 'G')[:1].upper() }}
+            </div>
+          </button>
+
+          <div id="userDropdown" class="dropdown" role="menu" aria-hidden="true">
+            <div class="dropdown-name">{{ session.get('user_name') or "Guest" }}</div>
+            <div class="dropdown-email">{{ session.get('user_email') or "guest@example.com" }}</div>
+            <div class="dropdown-logout">
+              <button id="dropdownLogoutBtn" class="btn-ghost logout" title="Logout">Logout</button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- CHAT AREA -->
+      <div class="chat-area">
+        <div id="messages" class="messages" aria-live="polite"></div>
+
+        <div class="composer" role="form" aria-label="Message composer">
+          <textarea id="text" placeholder="Ask about symptoms, tests or upload a report..."
+            aria-label="Message"></textarea>
+
+          <div class="actions">
+            <input id="uploadInput" type="file" accept=".pdf,.jpg,.png,.txt" style="display:none" />
+            <button id="attachBtn" class="btn-ghost disabled-btn has-tooltip" disabled>
+              <i class="bi bi-paperclip"></i>
+              <span class="tooltip-text">Updated soon</span>
+            </button>
+            <button id="sendBtn" class="btn-primary" title="Send"><i class="bi bi-send-fill"></i></button>
+          </div>
+        </div>
+      </div>
+      <div class="disclaimer">
+        <p><b>Always consult with a qualified healthcare provider</b> for any health concerns or before making any
+          medical decisions.</p>
+        <p class="status">Medi Chat is still under development</p>
+      </div>
+    </main>
+  </div>
+
+  <!-- Quick tips drawer -->
+  <div id="tipsPanel" class="tips" role="dialog" aria-hidden="true">
+    <div class="tips-head">
+      <strong>Quick tips</strong>
+      <button id="closeTips" class="btn-ghost"><i class="bi bi-x-lg"></i></button>
+    </div>
+    <ul class="tips-list">
+      <li>Be specific: include duration & severity.</li>
+      <li>Upload lab reports (CBC/LFT) for interpretation.</li>
+      <li>Do not share personal identifiers.</li>
+      <li>In emergencies, contact local services.</li>
+    </ul>
+  </div>
+
+  <!-- Project JS -->
+  <script src="{{ url_for('static', filename='chat.js') }}"></script>
 </body>
+
 </html>

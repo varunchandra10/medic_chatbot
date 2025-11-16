@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Medi-Assist AI | Login</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Inter Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <style>
+        /* Ensuring Inter font and dark mode colors are active */
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: #111827; /* Gray-900 background */
+            color: #f9fafb;
+        }
+        .auth-card { 
+            box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.6); 
+            background-color: #1f2937; /* Gray-800 card color */
+        }
+        .form-group label {
+            color: #d1d5db; /* Gray-300 labels */
+        }
+        .form-group input {
+            background-color: #374151; /* Gray-700 input background */
+            border-color: #4b5563; /* Gray-600 border */
+            color: #f9fafb;
+            transition: all 0.2s;
+        }
+        .form-group input:focus {
+            ring: 2px;
+            ring-color: #4f46e5; /* Indigo-600 focus ring */
+            border-color: #4f46e5;
+        }
+        .btn {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen">
+
+    <!-- Auth Card: Modern, Dark, Rounded -->
+    <div class="auth-card w-full max-w-md p-8 space-y-6 rounded-xl">
+        <div class="text-center">
+            <h2 class="text-3xl font-bold text-white tracking-tight">Welcome Back</h2>
+            <p class="subtitle text-lg font-medium text-gray-400 mt-2">Login to access your health companion</p>
+        </div>
+
+        <div class="space-y-5">
+            <div class="form-group">
+                <label class="block text-sm font-medium mb-1">Email</label>
+                <input id="email" type="email" placeholder="user@example.com" required
+                    class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 sm:text-sm">
+            </div>
+
+            <div class="form-group">
+                <label class="block text-sm font-medium mb-1">Password</label>
+                <input id="password" type="password" placeholder="Enter password" required
+                    class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 sm:text-sm">
+            </div>
+        </div>
+
+        <!-- Login Button with Indigo Theme -->
+        <button class="btn w-full flex justify-center py-3 px-4 rounded-lg text-base font-semibold text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 focus:ring-offset-gray-800 transition duration-150 ease-in-out" id="loginBtn">
+            Secure Login
+        </button>
+
+        <p class="switch-text text-center text-sm text-gray-400">
+            Don’t have an account?
+            <a href="/register" class="font-medium text-indigo-400 hover:text-indigo-300 transition duration-150">Create One</a>
+        </p>
+
+        <!-- Message Area -->
+        <p id="msg" class="text-center text-sm font-medium pt-2 h-5"></p>
+    </div>
+
+<script>
+$("#loginBtn").click(function() {
+    const payload = {
+        email: $("#email").val(),
+        password: $("#password").val()
+    };
+    const msgEl = $("#msg");
+    
+    // Set loading state visually
+    msgEl.removeClass("text-red-400 text-green-400").addClass("text-gray-400").text("Authenticating...");
+
+    $.ajax({
+        url: "/login",
+        method: "POST",
+        contentType: "application/json",
+        data: JSON.stringify(payload),
+        success: function(res) {
+            msgEl.removeClass("text-gray-400").addClass("text-green-400").text(res.message);
+            // Use res.redirect_url if provided by backend, otherwise default to home
+            setTimeout(() => { window.location.href = res.redirect_url || "/"; }, 1000);
+        },
+        error: function(err) {
+            const message = err.responseJSON ? err.responseJSON.message : "Connection error.";
+            msgEl.removeClass("text-gray-400").addClass("text-red-400").text(message);
+        }
+    });
+});
+</script>
+
+</body>
+</html>

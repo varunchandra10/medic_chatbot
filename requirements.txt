@@ -4,7 +4,9 @@ langchain-openai==0.3.24
 langchain-pinecone==0.2.8
 langchain-google-genai==2.0.5
 google-generativeai==0.8.5
+
 flask==3.1.1
+
 sentence-transformers==4.1.0
 pypdf==5.6.1
 python-dotenv==1.1.0
@@ -15,3 +17,10 @@ accelerate==1.1.1
 langdetect==1.0.9
 wikipedia
 xmltodict
+
+scikit-learn==1.5.2
+tokenizers==0.20.3
+nltk==3.9.1
+
+pymongo==4.6.1
+Flask-Bcrypt==1.0.1

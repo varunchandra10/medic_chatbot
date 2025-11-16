@@ -1,326 +1,453 @@
-/* =============================================
-   1. ROOT & THEME VARIABLES
-   ============================================= */
-:root {
-    --bg: #f5fafa;
-    --card: rgba(255,255,255,0.85);
-    --header-grad: linear-gradient(135deg, #008c99, #00c4b4);
-    --user-bubble: #008c99;
-    --bot-bubble: #e6f7f8;
-    --text: #212529;
-    --muted: #6c757d;
-    --border: #dee2e6;
-    --shadow-sm: 0 2px 8px rgba(0,0,0,.07);
-    --shadow-md: 0 8px 32px rgba(0,0,0,.12);
+/* ===========================
+   Theme variables (Light = default)
+   Palette D: soft purple (primary)
+   =========================== */
+:root{
+  --primary: #6D5DD3;
+  --primary-600: #5b4ac0;
+  --accent: #7f6fe0;
+  --bg-page: #f6f7fb;
+  --bg-panel: #ffffff;
+  --bg-sidebar: #ffffff;
+  --bg-header: #ffffff;
+  --bg-composer: #fbfbfd;
+  --msg-user: var(--primary);
+  --msg-bot: #f4f6fb;
+  --text-primary: #0f1724;
+  --text-muted: #596273;
+  --border: #e6e9f2;
+  --danger: #e74c3c;
+  --success: #16a34a;
+  --shadow: 0 6px 24px rgba(16,24,40,0.06);
+  --hover-sidebar: rgba(109,93,211,0.06);
+  --z-sidebar: 50; /* Z-index for the sidebar overlay */
+  --z-dropdown: 40; /* Z-index for dropdowns */
 }
 
-html.dark {
-    --bg: #0d1b2a;
-    --card: rgba(20,30,48,0.85);
-    --header-grad: linear-gradient(135deg, #006b75, #00a39a);
-    --user-bubble: #00c4b4;
-    --bot-bubble: #1b263b;
-    --text: #e5e5e5;
-    --muted: #9ba6b2;
-    --border: #2d3748;
+/* DARK theme overrides (applied when body has .dark) */
+body.dark{
+  --bg-page: #0b1020;
+  --bg-panel: #0f1724;
+  --bg-sidebar: #0b1220;
+  --bg-header: #0b1220;
+  --bg-composer: #0f1724;
+  --msg-user: #6D5DD3;
+  --msg-bot: #172033;
+  --text-primary: #e6eef6;
+  --text-muted: #94a3b8;
+  --border: #19232f;
+  --shadow: 0 10px 30px rgba(2,6,23,0.6);
 }
 
-/* =============================================
-   2. GLOBAL & FLUID TYPOGRAPHY
-   ============================================= */
-*, *::before, *::after { box-sizing: border-box; }
-html { font-size: 100%; }
-body, html {
-    margin: 0; height: 100%; overflow: hidden;
-    font-family: 'Inter', sans-serif;
-    background: var(--bg); color: var(--text);
+/* ===========================
+   Base & Layout
+   =========================== */
+html,body{height:100%;margin:0;font-family:'Inter',ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;}
+body{
+  background:var(--bg-page);
+  color:var(--text-primary);
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+  transition: background 0.3s, color 0.3s; /* Smooth theme transition */
+}
+.app-shell{
+  display:flex;
+  height:100vh;
+  overflow:hidden;
 }
 
-h1 { font-size: clamp(1.1rem, 2.5vw, 1.3rem); }
-p  { font-size: clamp(0.75rem, 2vw, 0.85rem); }
+/* ===========================
+   Sidebar (Desktop & Mobile Drawer)
+   =========================== */
+.sidebar{
+  width:18rem;
+  flex-shrink:0;
+  background:var(--bg-sidebar);
+  border-right:1px solid var(--border);
+  padding:1.1rem;
+  box-shadow:var(--shadow);
+  display:flex;
+  flex-direction:column;
+  transition: transform 0.3s ease-in-out, box-shadow 0.3s; /* Add transform transition */
+}
 
-/* =============================================
-   3. APP LAYOUT
-   ============================================= */
-.app {
-    height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: clamp(0.5rem, 2vw, 1rem);
+/* Mobile: Sidebar as an off-canvas menu */
+@media (max-width: 900px) {
+  .sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0; /* Ensure it covers full height */
+    z-index: var(--z-sidebar);
+    transform: translateX(-100%);
+    /* Stronger shadow for mobile overlay */
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.3); 
+    width: 16rem; /* Slightly smaller width on mobile */
+  }
+  .sidebar.open {
+    transform: translateX(0);
+  }
+}
+
+.top-row{display:flex;align-items:center;justify-content:space-between;gap:.6rem;margin-bottom:1rem}
+.brand{display:flex;align-items:center;gap:.6rem;font-weight:700;color:var(--primary);font-size:1.05rem}
+.nav-links{display:flex;flex-direction:column;gap:.5rem}
+.new-chat{display:flex;align-items:center;gap:.6rem;border-radius:.7rem;background:linear-gradient(90deg,var(--primary),var(--accent));color:white;padding:.6rem .8rem;border:none;cursor:pointer;transition:opacity 0.2s}
+.new-chat:hover{opacity:0.9}
+
+/* Sidebar links */
+.sidebar-link{
+  padding:.55rem .6rem;
+  border-radius:.6rem;
+  color:var(--text-muted);
+  transition:background .2s, color .2s;
+  display:flex;
+  align-items:center;
+  gap:.6rem;
+}
+.sidebar-link i{color:var(--text-muted); transition:color .2s}
+.sidebar-link:hover{background:var(--hover-sidebar);color:var(--text-primary)}
+.sidebar-link:hover i{color:var(--primary)}
+
+/* Sidebar Bottom (User/Theme controls) */
+.sidebar-bottom{margin-top:auto;padding-top:1rem;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:.8rem}
+.btn-ghost{background:transparent;border:1px solid transparent;padding:.55rem;border-radius:8px;cursor:pointer;display:flex;align-items:center;gap:.5rem;color:var(--text-muted);transition:background .2s, color .2s}
+.btn-ghost:hover{background:var(--hover-sidebar);color:var(--text-primary)}
+.btn-ghost.logout{color:var(--danger)}
+.btn-primary{background:linear-gradient(90deg,var(--primary),var(--accent));color:white;padding:.55rem .7rem;border-radius:10px;border:none;cursor:pointer;transition:opacity 0.2s}
+.btn-primary:hover{opacity:0.9}
+
+/* ===========================
+   Header & Main Panel
+   =========================== */
+.panel{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  background:var(--bg-panel);
+  min-width:0; /* Fixes overflow issues in flex container */
+}
+.header{
+  height:64px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 1rem;
+  border-bottom:1px solid var(--border);
+  background:var(--bg-header);
+  flex-shrink: 0; /* Prevent header from shrinking */
+}
+.header-left{display:flex;align-items:center;gap:.75rem}
+.header-left h1{font-size:1rem;margin:0;font-weight:600}
+.header-center{flex:1;display:flex;align-items:center;justify-content:center;padding:0 .5rem;min-width:0} /* Added min-width:0 */
+.header-right{display:flex;align-items:center;gap:.6rem;position:relative}
+.header-avatar{height:2.25rem;width:2.25rem;border-radius:9999px;background:var(--primary);color:white;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:1rem;flex-shrink:0}
+
+/* Language controls */
+.lang-pills{display:flex;gap:.45rem}
+.lang-pill{padding:.35rem .6rem;border-radius:999px;font-size:.82rem;border:1px solid var(--border);background:transparent;color:var(--text-muted);cursor:pointer;transition:all 0.2s}
+.lang-pill:hover{border-color:var(--primary)}
+.lang-pill.active{background:linear-gradient(90deg,var(--primary)20%,var(--accent));color:white;border-color:var(--primary)}
+.lang-dropdown{display:none} /* Hidden by default on desktop */
+
+/* Desktop vs Mobile Language Controls */
+@media(max-width:900px){ 
+  /* Mobile: Center is now left-aligned and uses dropdown */
+  .header-center { justify-content: flex-start; }
+  .lang-pills{display:none !important} 
+  .lang-dropdown{display:block !important} 
+}
+@media(min-width:901px){
+  /* Desktop: Use pills */
+  .lang-pills{display:flex !important} 
+  .lang-dropdown{display:none !important}
+  /* Show menu toggle on mobile only */
+  .md\:hidden { display: none !important; }
+}
+
+/* User Dropdown */
+.dropdown{
+  position:absolute;
+  right:0;
+  top:100%;
+  margin-top:.6rem;
+  background:var(--bg-panel);
+  border:1px solid var(--border);
+  padding:.5rem;
+  border-radius:8px;
+  min-width:12rem;
+  box-shadow:var(--shadow);
+  display:none;
+  z-index: var(--z-dropdown);
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: opacity 0.2s, transform 0.2s;
+}
+.dropdown.show{
+  display:block;
+  opacity: 1;
+  transform: translateY(0);
+}
+.dropdown-name{font-weight:600;padding:0 .5rem}
+.dropdown-email{font-size:.85rem;color:var(--text-muted);padding:0 .5rem;margin-bottom:.5rem}
+.dropdown-logout{border-top:1px solid var(--border);padding-top:.5rem;margin-top:.5rem}
+.dropdown-logout .btn-ghost{width:100%;justify-content:center}
+
+
+/* ===========================
+   Chat Area & Messages
+   =========================== */
+.chat-area{
+  display:flex;
+  flex-direction:column;
+  flex:1;
+  min-height:0; /* Important for flex child */
+}
+.messages{
+  flex:1;
+  overflow-y:auto; /* Use overflow-y for scroll */
+  padding:1.25rem;
+  display:flex;
+  flex-direction:column;
+  gap:.8rem;
+  background:transparent;
+  scroll-behavior: smooth; /* Smooth scrolling for new messages */
+}
+.msg{
+  display:flex;
+  gap:.6rem;
+  align-items:flex-start; /* Align messages to top of bubble, not bottom */
+  max-width:90%;
+}
+.msg.user{justify-content:flex-end;align-self:flex-end}
+.msg.user .bubble{border-radius:12px 12px 2px 12px;} /* Tail for user */
+.msg.bot .bubble{border-radius:12px 12px 12px 2px;} /* Tail for bot */
+
+.bubble{
+  padding:.7rem 1rem;
+  line-height:1.45;
+  border:1px solid var(--border);
+  background:var(--msg-bot);
+  color:var(--text-primary);
+  max-width:100%; /* Use 100% of the parent .msg container's max-width */
+}
+.bubble.user{background:var(--msg-user);color:white;border:none}
+
+/* Fix Markdown rendering inside bubbles */
+.bubble h1, .bubble h2, .bubble h3, .bubble h4 { font-weight: 600; margin-top: 1rem; margin-bottom: 0.5rem; }
+.bubble p { margin: 0.5rem 0; }
+.bubble code { background: rgba(0,0,0,0.05); padding: 2px 4px; border-radius: 4px; font-size: 0.9em; }
+body.dark .bubble code { background: rgba(255,255,255,0.1); }
+.bubble pre { padding: 10px; background: rgba(0,0,0,0.05); border-radius: 6px; overflow-x: auto; font-size: 0.9em; }
+body.dark .bubble pre { background: rgba(255,255,255,0.1); }
+.bubble ul, .bubble ol { padding-left: 20px; margin: 0.5rem 0; }
+.bubble table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 0.9em; }
+.bubble th, .bubble td { border: 1px solid var(--border); padding: 8px; text-align: left; }
+.bubble th { background: var(--bg-composer); font-weight: 600; }
+
+
+/* ===========================
+   Composer & Input
+   =========================== */
+.composer{
+  padding:1rem;
+  border-top:1px solid var(--border);
+  background:var(--bg-composer);
+  display:flex;
+  gap:.6rem;
+  align-items:flex-end;
+  flex-shrink: 0;
+}
+.composer textarea{
+  flex:1;
+  padding:.7rem .85rem;
+  border-radius:10px;
+  border:1px solid var(--border);
+  background:transparent;
+  color:var(--text-primary);
+  min-height:44px;
+  max-height:220px;
+  resize:none;
+  font-size:0.95rem;
+  line-height: 1.4;
+  transition: border-color 0.2s, background 0.2s;
+}
+.composer textarea:focus{
+  border-color: var(--primary);
+  outline: none;
+}
+.composer .actions{
+  display:flex;
+  gap:.45rem;
+  align-items:center;
+  flex-shrink: 0;
+}
+.composer .actions .btn-primary{
+  height: 44px;
+  width: 44px;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.1rem;
+}
+.composer .actions .btn-ghost{
+  height: 44px;
+  width: 44px;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.1rem;
+}
+
+/* ===========================
+   Tips Panel (Drawer)
+   =========================== */
+.tips{
+  position:fixed;
+  right:1rem;
+  top:72px;
+  width:20rem; /* Slightly wider tips panel */
+  background:var(--bg-panel);
+  border:1px solid var(--border);
+  padding:1rem;
+  border-radius:10px;
+  box-shadow:var(--shadow);
+  /* Use transform for cleaner open/close animation */
+  transform: translateX(25rem); 
+  transition: transform 0.3s ease-in-out;
+  z-index: var(--z-dropdown);
+}
+.tips.open{
+  transform: translateX(0);
+}
+.tips-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:.6rem;font-weight:600}
+.tips-list{margin:0;padding-left:1.5rem;color:var(--text-muted);line-height:1.6;list-style-type: disc;}
+.tips-list li{margin-bottom: .5rem;}
+
+/* ===========================
+   Final Responsive Tweaks (Mobile Overrides)
+   =========================== */
+@media(max-width:900px){
+  /* Hide desktop header elements */
+  .header-left h1 { display: none; }
+  /* Ensure tips panel is full-width minus padding on mobile */
+  .tips{
+    right: 0;
+    left: 0;
+    margin: 0 auto;
+    width: 90%; 
+    top: 68px; /* Slightly lower */
+    /* Adjust transform for proper mobile view */
+    transform: translateY(-200%);
+    box-shadow: var(--shadow);
+  }
+  .tips.open{
+    transform: translateY(0);
+  }
+
+  /* Language dropdown already covered by lang-pills/lang-dropdown rules above */
+}
+
+/* ===========================
+   Disclaimer Styling (Crisp, Centered, Themed)
+   =========================== */
+.disclaimer {
+    /* Positioning & Box Model */
+    padding: 0.75rem 1rem;
+    margin: 0 1rem 0.5rem 1rem;
+    
+    /* Typography & Alignment */
+    font-size: 0.85rem; /* Same size as general system text */
+    line-height: 1.4;
+    text-align: center; /* Center the text */
+
+    /* Colors and Appearance */
+    color: var(--text-muted); /* Muted color for secondary text */
+    background-color: var(--bg-composer); 
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    
+    /* Ensure crisp lines (using padding/margins on inner elements) */
+}
+
+/* Style the inner paragraphs for crisp line separation */
+.disclaimer p {
+    margin: 0.2rem 0;
+    padding: 0;
+    font-size: 10px;
+}
+
+/* Highlight key warnings */
+.disclaimer b {
+    color: var(--text-primary); /* Use primary text color for emphasis */
+}
+
+/* Style the 'Under Development' status line */
+.disclaimer .status {
+    font-style: italic;
+    margin-top: 0.5rem;
+    color: red; /* Use a distinct color for status/disclaimer reminder */
+}
+
+/* Dark Mode Overrides for Disclaimer */
+body.dark .disclaimer {
+    background-color: var(--bg-composer);
+    border-color: var(--border);
+}
+body.dark .disclaimer b {
+    color: var(--text-primary);
+}
+
+.has-tooltip {
     position: relative;
 }
 
-.chat-card {
-    width: 100%;
-    max-width: 500px;
-    height: 100vh;
-    max-height: 860px;
-    background: var(--card);
-    backdrop-filter: blur(12px);
-    border-radius: clamp(12px, 3vw, 24px);
-    overflow: hidden;
-    box-shadow: var(--shadow-md);
-    display: flex;
-    flex-direction: column;
-    transition: all 0.3s ease;
-}
-
-/* =============================================
-   4. HEADER
-   ============================================= */
-.chat-header {
-    background: var(--header-grad);
-    color: #fff;
-    padding: clamp(0.75rem, 2.5vw, 1rem) clamp(1rem, 3vw, 1.25rem);
-    display: flex;
-    align-items: center;
-    gap: clamp(0.75rem, 2vw, 1rem);
-    flex-shrink: 0;
-}
-
-.chat-header .avatar { position: relative; flex-shrink: 0; }
-.chat-header img {
-    width: clamp(36px, 8vw, 48px);
-    height: clamp(36px, 8vw, 48px);
-    border-radius: 50%;
-    border: 2px solid #fff;
-    object-fit: cover;
-}
-.chat-header .online {
-    position: absolute; bottom: 0; right: 0;
-    width: clamp(10px, 2.5vw, 14px);
-    height: clamp(10px, 2.5vw, 14px);
-    background: #4cd137;
-    border: 2px solid var(--card);
-    border-radius: 50%;
-}
-
-/* =============================================
-   5. MESSAGES
-   ============================================= */
-.messages {
-    flex: 1;
-    overflow-y: auto;
-    padding: clamp(0.75rem, 2.5vw, 1rem) clamp(1rem, 3vw, 1.25rem);
-    display: flex;
-    flex-direction: column;
-    gap: clamp(0.75rem, 2vw, 1rem);
-    scroll-behavior: smooth;
-}
-.messages::-webkit-scrollbar { width: 5px; }
-.messages::-webkit-scrollbar-thumb { background: rgba(0,0,0,.15); border-radius: 3px; }
-
-.msg {
-    display: flex;
-    flex-direction: column;
-    max-width: 85%;
-    animation-duration: .35s;
-}
-.msg.user { align-self: flex-end; align-items: flex-end; }
-.msg.bot  { align-self: flex-start; }
-
-.msg .bubble {
-    padding: clamp(0.6rem, 2vw, 0.75rem) clamp(0.9rem, 2.5vw, 1rem);
-    border-radius: 18px;
-    line-height: 1.5;
-    font-size: clamp(0.85rem, 2.2vw, 0.95rem);
-    word-break: break-word;
-    box-shadow: var(--shadow-sm);
-}
-.msg.user .bubble {
-    background: var(--user-bubble);
-    color: #fff;
-    border-bottom-right-radius: 4px;
-}
-.msg.bot .bubble {
-    background: var(--bot-bubble);
-    color: var(--text);
-    border-bottom-left-radius: 4px;
-}
-
-.markdown-body p { margin: 0.25rem 0; }
-.markdown-body strong { font-weight: 600; }
-.markdown-body ul { margin: 0.4rem 0; padding-left: 1.2rem; }
-.markdown-body code {
-    background: rgba(0,0,0,.07);
-    padding: 0.15rem 0.35rem;
+.tooltip-text {
+    /* Tooltip Appearance */
+    visibility: hidden;
+    opacity: 0;
+    width: 100px; /* Fixed width for the text */
+    background-color: var(--text-primary); /* Dark background */
+    color: white; /* Light text */
+    text-align: center;
+    padding: 4px 6px;
     border-radius: 4px;
-    font-size: 0.85em;
-}
+    font-size: 0.75rem;
+    font-weight: 500;
+    white-space: nowrap; /* Keep text on one line */
+    transition: opacity 0.3s;
 
-.msg time {
-    font-size: clamp(0.65rem, 1.8vw, 0.7rem);
-    color: var(--muted);
-    margin-top: 0.25rem;
-}
-
-/* =============================================
-   6. TYPING INDICATOR (FIXED!)
-   ============================================= */
-/* TYPING BUBBLE – matches your screenshot exactly */
-.typing-indicator .bubble {
-    display: flex;
-    gap: 4px;
-    padding: 0.5rem 0.8rem;
-    background: var(--bot-bubble);
-    border-radius: 18px;
-    border-bottom-left-radius: 4px;
-}
-.typing-indicator span {
-    width: 7px;
-    height: 7px;
-    background: var(--user-bubble);
-    border-radius: 50%;
-    animation: pulse 1.4s infinite ease-in-out;
-}
-.typing-indicator span:nth-child(2) { animation-delay: -0.7s; }
-.typing-indicator span:nth-child(3) { animation-delay: -0.35s; }
-
-@keyframes pulse {
-    0%, 100% { transform: scale(1); opacity: .6; }
-    50%     { transform: scale(1.4); opacity: 1; }
-}
-/* =============================================
-   7. INPUT FOOTER
-   ============================================= */
-.chat-footer {
-    padding: clamp(0.6rem, 2vw, 0.75rem) clamp(0.8rem, 2.5vw, 1rem);
-    background: var(--card);
-    border-top: 1px solid var(--border);
-    flex-shrink: 0;
-}
-
-.input-group {
-    display: flex;
-    align-items: center;
-    background: var(--bg);
-    border-radius: 30px;
-    overflow: hidden;
-    box-shadow: var(--shadow-sm);
-    height: clamp(44px, 10vw, 52px);
-}
-
-.input-group input {
-    flex: 1;
-    border: none;
-    background: transparent;
-    padding: 0 clamp(0.9rem, 2.5vw, 1rem);
-    font-size: clamp(0.9rem, 2.3vw, 0.95rem);
-    outline: none;
-    color: var(--text);
-}
-.input-group input::placeholder { color: var(--muted); }
-
-.input-group button {
-    width: clamp(44px, 10vw, 52px);
-    height: 100%;
-    border: none;
-    background: var(--user-bubble);
-    color: #fff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: background .2s, transform .1s;
-    font-size: clamp(1rem, 2.5vw, 1.1rem);
-}
-.input-group button:hover { background: #006b75; }
-.input-group button:active { transform: scale(0.92); }
-
-/* =============================================
-   8. THEME TOGGLE
-   ============================================= */
-.theme-toggle {
+    /* Positioning */
     position: absolute;
-    top: clamp(0.75rem, 2vw, 1rem);
-    right: clamp(0.75rem, 2vw, 1rem);
-    background: transparent;
-    border: none;
-    font-size: clamp(1.2rem, 3vw, 1.4rem);
-    color: var(--text);
-    cursor: pointer;
-    transition: transform .2s;
+    z-index: 10;
+    bottom: calc(100% + 8px); /* Position 8px above the button */
+    left: 50%; /* Start at 50% from the left */
+    transform: translateX(-50%); /* Shift back 50% of its own width to center */
 }
-.theme-toggle:hover { transform: scale(1.1); }
 
-.lang-btn {
-    background: var(--bot-bubble);
-    border: none;
-    border-radius: 12px;
-    cursor: pointer;
-    transition: 0.2s;
+/* Tooltip Arrow (Triangle) */
+.tooltip-text::after {
+    content: "";
+    position: absolute;
+    top: 100%; /* Position at the bottom edge */
+    left: 50%;
+    margin-left: -5px; /* Half the size of the triangle */
+    border-width: 5px;
+    border-style: solid;
+    border-color: var(--text-primary) transparent transparent transparent; /* Dark triangle pointing down */
 }
-.lang-btn:hover { background: #cce5ff; transform: scale(1.05); }
 
-        .language-prompt {
-            text-align: center;
-            padding: 20px 0;
-        }
-        .language-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
-            margin-top: 16px;
-        }
-        .lang-btn {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 6px;
-            padding: 12px 16px;
-            border: 2px solid var(--border, #e0e0e0);
-            border-radius: 12px;
-            background: var(--bg-secondary, #f8f9fa);
-            color: var(--text, #333);
-            font-size: 0.95rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            min-height: 60px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        .lang-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
-            border-color: var(--primary, #007bff);
-        }
-        .lang-btn:active {
-            transform: translateY(0);
-        }
-        .lang-btn.selected {
-            border-color: var(--primary, #007bff);
-            background: var(--primary-light, #e3f2fd);
-            color: var(--primary, #007bff);
-        }
-        .flag-emoji {
-            font-size: 1.5rem;
-        }
-        .dark .lang-btn {
-            background: var(--bg-secondary-dark, #2a2a2a);
-            border-color: var(--border-dark, #444);
-            color: var(--text-dark, #e0e0e0);
-        }
-        .dark .lang-btn:hover {
-            border-color: var(--primary-dark, #4dabf7);
-        }
+/* Show the tooltip on hover over the button */
+.has-tooltip:hover .tooltip-text {
+    visibility: visible;
+    opacity: 1;
+}
 
-/* =============================================
-   9. RESPONSIVE BREAKPOINTS
-   ============================================= */
-@media (max-width: 480px) {
-    .chat-card { border-radius: 16px; }
-}
-@media (min-width: 576px) {
-    .chat-card { height: 92vh; max-width: 80vw; }
-}
-@media (min-width: 992px) {
-    .app { padding: 2rem; }
-    .chat-card { height: 88vh; max-width: 460px; }
-}
-@media (min-width: 1200px) {
-    .chat-card { max-width: 500px; }
-}
-@media (min-width: 1600px) {
-    .chat-card { max-width: 520px; }
+/* Ensure the disabled button still looks muted */
+.disabled-btn {
+    opacity: 0.5;
+    cursor: not-allowed;
+    /* Removed pointer-events: none in CSS so hover still works on the container */
 }

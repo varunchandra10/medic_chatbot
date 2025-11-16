@@ -44,7 +44,7 @@ python -m venv venv
 
 - **Linux/macOS/Git Bash**
   ```bash
-  source venv/bin/activate
+  source venv/Scripts/activate
   ```
 - **Windows (Command Prompt)**
   ```bash
