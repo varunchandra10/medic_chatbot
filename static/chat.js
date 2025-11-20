@@ -1,359 +1,711 @@
-// ================================================================
-// DOM Elements and Constants
-// ================================================================
-const sidebar = document.getElementById('sidebar');
-const menuToggleBtn = document.getElementById('menuToggleBtn');
-const closeSidebarBtn = document.getElementById('closeSidebarBtn');
-const THEME_TOGGLE = document.getElementById('themeToggle');
-const tipsBtn = document.getElementById('quickTipsBtn');
-const tipsPanel = document.getElementById('tipsPanel');
-const closeTips = document.getElementById('closeTips');
-const userMenuBtn = document.getElementById('userMenuBtn');
-const userDropdown = document.getElementById('userDropdown');
-const logoutBtn = document.getElementById('logoutBtn');
-const dropdownLogoutBtn = document.getElementById('dropdownLogoutBtn');
+(() => {
+  "use strict";
 
-const langDesktop = document.getElementById('langSelectDesktop');
-const langDropdown = document.getElementById('langDropdown');
+  // ================================================================
+  // 1. DOM ELEMENTS & CONSTANTS
+  // ================================================================
+  document.addEventListener("DOMContentLoaded", async () => {
+    const DOM = {
+      sidebar: document.getElementById("sidebar"),
+      menuToggleBtn: document.getElementById("menuToggleBtn"),
+      closeSidebarBtn: document.getElementById("closeSidebarBtn"),
+      themeToggle: document.getElementById("themeToggle"),
+      tipsBtn: document.getElementById("quickTipsBtn"),
+      tipsPanel: document.getElementById("tipsPanel"),
+      closeTips: document.getElementById("closeTips"),
+      userMenuBtn: document.getElementById("userMenuBtn"),
+      userDropdown: document.getElementById("userDropdown"),
+      logoutBtn: document.getElementById("logoutBtn"),
+      dropdownLogoutBtn: document.getElementById("dropdownLogoutBtn"),
 
-const messages = document.getElementById('messages');
-const textInput = document.getElementById('text');
-const sendBtn = document.getElementById('sendBtn');
-const attachBtn = document.getElementById('attachBtn');
-const uploadInput = document.getElementById('uploadInput');
+      langDesktop: document.getElementById("langSelectDesktop"),
+      langDropdown: document.getElementById("langDropdown"),
 
-const newChatBtn = document.getElementById('newChatBtn');
-// IMPORTANT: We now target the History link's parent <div> to insert the conversation list
-const historyLink = document.querySelector('.sidebar-link[href="#"]'); 
-const navLinksDiv = document.querySelector('.nav-links'); // For inserting the history list
+      messages: document.getElementById("messages"),
+      textInput: document.getElementById("text"),
+      sendBtn: document.getElementById("sendBtn"),
+      attachBtn: document.getElementById("attachBtn"),
+      uploadInput: document.getElementById("uploadInput"),
 
-// Languages
-const LANGS = {
-  en: { label: 'English', placeholder: 'Ask about symptoms, tests or upload a report...' },
-  hi: { label: 'हिन्दी', placeholder: 'हिन्दी में पूछें...' },
-  ta: { label: 'தமிழ்', placeholder: 'தமிழில் கேளுங்கள்...' },
-  te: { label: 'తెలుగు', placeholder: 'తెలుగులో అడగండి...' }
-};
-let selectedLang = localStorage.getItem('med_lang') || 'en';
-let activeConversationId = null; // Track the currently active chat thread
+      newChatBtn: document.getElementById("newChatBtn"),
+      historyLink: document.getElementById("historyLink"),
+      deleteModal: document.getElementById("deleteModal"),
+      cancelDeleteBtn: document.getElementById("cancelDeleteBtn"),
+      confirmDeleteBtn: document.getElementById("confirmDeleteBtn"),
+      newsBtn: document.getElementById("newsBtn"),
+    };
 
-// ================================================================
-// Theme Logic
-// ================================================================
-let theme = localStorage.getItem('med_theme') || 'light';
-function applyTheme(mode){
-  if(mode === 'dark') document.body.classList.add('dark');
-  else document.body.classList.remove('dark');
+    // Call this AFTER DOM is ready
 
-  if(THEME_TOGGLE) THEME_TOGGLE.innerHTML = mode === 'light' ? '<i class="bi bi-moon-stars-fill"></i><span>Theme</span>' : '<i class="bi bi-sun-fill"></i><span>Theme</span>';
-  localStorage.setItem('med_theme', mode);
-}
-applyTheme(theme);
-if(THEME_TOGGLE) THEME_TOGGLE.addEventListener('click', ()=> { theme = theme === 'light' ? 'dark' : 'light'; applyTheme(theme); });
+    // Language configuration
+    const LANGS = {
+      en: { label: "English", native: "English" },
+      hi: { label: "हिन्दी", native: "Hindi" },
+      ta: { label: "தமிழ்", native: "Tamil" },
+      te: { label: "తెలుగు", native: "Telugu" },
+    };
 
-// ================================================================
-// Sidebar & Dropdowns
-// ================================================================
-// Sidebar toggles
-menuToggleBtn && menuToggleBtn.addEventListener('click', ()=> sidebar.classList.toggle('open'));
-closeSidebarBtn && closeSidebarBtn.addEventListener('click', ()=> sidebar.classList.remove('open'));
+    let translations = {};
+    let currentLang = localStorage.getItem("med_lang") || "en";
 
-// Tips panel
-tipsBtn && tipsBtn.addEventListener('click', ()=> tipsPanel.classList.toggle('open'));
-closeTips && closeTips.addEventListener('click', ()=> tipsPanel.classList.remove('open'));
-
-// User dropdown
-userMenuBtn && userMenuBtn.addEventListener('click', (e)=> { e.stopPropagation(); userDropdown.classList.toggle('show'); });
-document.addEventListener('click', ()=> userDropdown.classList.remove('show'));
-
-// Logout (calls backend /logout)
-async function doLogout(){
-  try{
-    const res = await fetch('/logout', { method: 'POST' });
-    if(res.ok){ window.location.href = '/login'; }
-    else {
-      try { const j = await res.json(); alert(j.message || 'Logout failed'); } catch(e) { alert('Logout failed'); }
-    }
-  }catch(e){ console.error(e); alert('Logout failed'); }
-}
-logoutBtn && logoutBtn.addEventListener('click', doLogout);
-dropdownLogoutBtn && dropdownLogoutBtn.addEventListener('click', doLogout);
-
-
-// ================================================================
-// Language Controls
-// ================================================================
-function buildLangPills(){
-  if(!langDesktop) return;
-  langDesktop.innerHTML = '';
-  Object.entries(LANGS).forEach(([k,v])=>{
-    const b = document.createElement('button');
-    b.className = 'lang-pill';
-    b.textContent = v.label;
-    if(k === selectedLang) b.classList.add('active');
-    b.onclick = ()=> setLanguage(k);
-    langDesktop.appendChild(b);
-  });
-}
-if(langDropdown){
-  langDropdown.value = selectedLang;
-  langDropdown.addEventListener('change', ()=> setLanguage(langDropdown.value));
-}
-
-function setLanguage(code){
-  selectedLang = code;
-  localStorage.setItem('med_lang', code);
-  if(textInput) textInput.placeholder = LANGS[code].placeholder;
-  buildLangPills();
-  if(langDropdown) langDropdown.value = code;
-  addSystemMessage(`Language set to ${LANGS[code].label}`);
-}
-setLanguage(selectedLang);
-
-
-// ================================================================
-// Messaging and History Helpers (MODIFIED)
-// ================================================================
-function escapeHtml(s){ return (s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
-
-function addMessage(kind, html, shouldScroll = true){ 
-  const wrapper = document.createElement('div');
-  wrapper.className = 'msg ' + (kind === 'user' ? 'user' : 'bot');
-  const bubble = document.createElement('div');
-  bubble.className = 'bubble' + (kind === 'user' ? ' user' : '');
-  bubble.innerHTML = html;
-  wrapper.appendChild(bubble);
-  messages.appendChild(wrapper);
-  
-  if(shouldScroll) {
-    messages.scrollTop = messages.scrollHeight;
-  }
-  return wrapper;
-}
-function addSystemMessage(txt){ addMessage('bot', `<div style="color:var(--text-muted);font-size:.92rem">${txt}</div>`); }
-
-
-/**
- * Clears chat and loads a specific conversation thread.
- * If id is null, it resets the session to start a new chat.
- */
-async function loadConversation(id = null) {
-  messages.innerHTML = '';
-  
-  // Check if the requested chat ID is the one currently active
-  if (id === activeConversationId) {
-    addSystemMessage('Conversation already active.');
-    return;
-  }
-
-  if (!id) {
-    // Start a completely new chat (calls backend to reset current_chat_id)
-    try {
-      await fetch('/end_chat', { method: 'POST' });
-    } catch (e) {
-      console.error("Failed to end chat session:", e);
-    }
-    activeConversationId = null;
-    addSystemMessage('New conversation started. Upload a report or ask a question.');
-    return;
-  }
-
-  // Load existing thread
-  try {
-    const res = await fetch(`/conversation/${id}`);
-    if (!res.ok) throw new Error('Failed to load conversation');
-    
-    const data = await res.json();
-    
-    data.messages.forEach(msg => {
-      const kind = msg.role; 
-      const content = kind === 'bot' ? marked.parse(msg.message || '') : escapeHtml(msg.message || '');
-      addMessage(kind, content, false); 
-    });
-    
-    activeConversationId = data.conversation_id;
-    messages.scrollTop = messages.scrollHeight; 
-    addSystemMessage(`Loaded conversation: ${data.messages[0].message.substring(0, 40)}...`);
-    
-  } catch (err) {
-    console.error('Error loading conversation:', err);
-    addSystemMessage('Could not load chat history. Starting a new session.');
-    activeConversationId = null;
-  }
-}
-
-
-/**
- * Fetches and displays the list of past conversations in the sidebar.
- */
-async function toggleHistoryList(e) {
-    e.preventDefault();
-    
-    // Check if the history list container already exists
-    let listContainer = document.getElementById('historyListContainer');
-    
-    // If the list is open, close it (toggle behavior)
-    if (listContainer) {
-        listContainer.remove();
-        historyLink.classList.remove('active');
-        return;
+    // Load translations.json once
+    async function loadTranslations() {
+      try {
+        const res = await fetch("/static/translations.json");
+        translations = await res.json();
+        applyTranslations(currentLang);
+      } catch (err) {
+        console.warn("translations.json not found – running in English only");
+        translations = { en: {} };
+      }
     }
 
-    // Mark the link as active
-    historyLink.classList.add('active');
-    
-    // Create the container for the list
-    listContainer = document.createElement('div');
-    listContainer.id = 'historyListContainer';
-    listContainer.className = 'history-list-container';
-    
-    // Find the position after the History link to insert the list
-    historyLink.insertAdjacentElement('afterend', listContainer);
+    // Apply translation to all [data-i18n] elements
+    function applyTranslations(lang) {
+      currentLang = lang;
+      document.documentElement.lang = lang;
 
-    try {
-        const res = await fetch('/conversations');
-        if (!res.ok) throw new Error('Failed to fetch conversation list');
-        
-        const data = await res.json();
-        
-        if (data.conversations && data.conversations.length > 0) {
-            data.conversations.forEach(conv => {
-                const item = document.createElement('a');
-                item.href = `#chat-${conv.id}`;
-                item.className = 'sidebar-link history-item';
-                item.title = conv.title;
-                item.innerHTML = `<i class="bi bi-chat-text"></i> <span>${escapeHtml(conv.title)}...</span>`;
-                
-                // Click handler to load the specific conversation
-                item.onclick = (e) => {
-                    e.preventDefault();
-                    // Close the sidebar on mobile after clicking a thread
-                    sidebar.classList.remove('open'); 
-                    // Load the conversation and update the activeConversationId
-                    loadConversation(conv.id); 
-                };
-                listContainer.appendChild(item);
-            });
+      const dict = translations[lang] || translations["en"] || {};
+
+      // Translate text content
+      document.querySelectorAll("[data-i18n]").forEach((el) => {
+        const key = el.getAttribute("data-i18n");
+        if (dict[key]) el.textContent = dict[key];
+      });
+
+      // Translate placeholder
+      document.querySelectorAll("[data-i18n-placeholder]").forEach((el) => {
+        const key = el.getAttribute("data-i18n-placeholder");
+        if (dict[key]) el.placeholder = dict[key];
+      });
+
+      // Update page title
+      const titleKey = document
+        .querySelector("title")
+        ?.getAttribute("data-i18n");
+      if (titleKey && dict[titleKey]) {
+        document.title = dict[titleKey];
+      }
+    }
+
+    // State
+    let state = {
+      theme: localStorage.getItem("med_theme") || "light",
+      activeConversationId: null,
+      conversationToDelete: null,
+      typingMarker: null,
+    };
+
+    // ================================================================
+    // 2. UTILITIES
+    // ================================================================
+    const Utils = {
+      escapeHtml(str) {
+        if (!str) return "";
+        return str.replace(
+          /[&<>"]/g,
+          (c) =>
+            ({
+              "&": "&amp;",
+              "<": "&lt;",
+              ">": "&gt;",
+              '"': "&quot;",
+            }[c])
+        );
+      },
+
+      addMessage(kind, html, shouldScroll = true) {
+        const wrapper = document.createElement("div");
+        wrapper.className = `msg ${kind === "user" ? "user" : "bot"}`;
+
+        const bubble = document.createElement("div");
+        bubble.className = `bubble${kind === "user" ? " user" : ""}`;
+        bubble.innerHTML = html;
+        wrapper.appendChild(bubble);
+        DOM.messages.appendChild(wrapper);
+
+        if (shouldScroll) {
+          DOM.messages.scrollTop = DOM.messages.scrollHeight;
+        }
+        return wrapper;
+      },
+
+      addSystemMessage(text) {
+        this.addMessage(
+          "bot",
+          `<div style="color:var(--text-muted);font-size:.92rem">${text}</div>`
+        );
+      },
+
+      showTyping() {
+        this.hideTyping();
+        state.typingMarker = this.addMessage(
+          "bot",
+          `<div style="display:flex;gap:.4rem">
+          <span style="width:8px;height:8px;border-radius:99px;background:var(--primary);animation:blink 1s infinite"></span>
+          <span style="width:8px;height:8px;border-radius:99px;background:var(--primary);animation:blink 1s .15s infinite"></span>
+          <span style="width:8px;height:8px;border-radius:99px;background:var(--primary);animation:blink 1s .3s infinite"></span>
+        </div>`
+        );
+      },
+
+      hideTyping() {
+        if (state.typingMarker) {
+          state.typingMarker.remove();
+          state.typingMarker = null;
+        }
+      },
+    };
+
+    // ================================================================
+    // 3. THEME MODULE
+    // ================================================================
+    const Theme = {
+      apply(mode) {
+        if (mode === "dark") {
+          document.body.classList.add("dark");
         } else {
-            listContainer.innerHTML = '<span style="padding: 0.55rem 0.6rem; color: var(--text-muted); font-size: 0.9rem;">No past chats found.</span>';
+          document.body.classList.remove("dark");
         }
 
-    } catch (err) {
-        listContainer.innerHTML = '<span style="padding: 0.55rem 0.6rem; color: var(--danger); font-size: 0.9rem;">Error loading history.</span>';
-        console.error('Error fetching conversation list:', err);
-    }
-}
+        if (DOM.themeToggle) {
+          DOM.themeToggle.innerHTML =
+            mode === "light"
+              ? '<i class="bi bi-moon-stars-fill"></i><span>Theme</span>'
+              : '<i class="bi bi-sun-fill"></i><span>Theme</span>';
+        }
 
+        localStorage.setItem("med_theme", mode);
+      },
 
-// ================================================================
-// Core Chat Functionality
-// ================================================================
+      toggle() {
+        state.theme = state.theme === "light" ? "dark" : "light";
+        this.apply(state.theme);
+      },
 
-// Typing indicator
-let typingMarker = null;
-function showTyping(){
-  hideTyping();
-  typingMarker = addMessage('bot', '<div style="display:flex;gap:.4rem"><span style="width:8px;height:8px;border-radius:99px;background:var(--primary);animation:blink 1s infinite"></span><span style="width:8px;height:8px;border-radius:99px;background:var(--primary);animation:blink 1s .15s infinite"></span><span style="width:8px;height:8px;border-radius:99px;background:var(--primary);animation:blink 1s .3s infinite"></span></div>');
-}
-function hideTyping(){ if(typingMarker){ typingMarker.remove(); typingMarker = null; } }
-const styleEl = document.createElement('style'); 
-// Ensure CSS for history list item spacing is added
-styleEl.innerHTML = `
+      init() {
+        this.apply(state.theme);
+        DOM.themeToggle?.addEventListener("click", () => this.toggle());
+      },
+    };
+
+    // ================================================================
+    // 4. SIDEBAR & UI PANELS MODULE
+    // ================================================================
+    const UI = {
+      init() {
+        // Mobile menu
+        DOM.menuToggleBtn?.addEventListener("click", () =>
+          DOM.sidebar.classList.toggle("open")
+        );
+        DOM.closeSidebarBtn?.addEventListener("click", () =>
+          DOM.sidebar.classList.remove("open")
+        );
+
+        // Tips panel
+        DOM.tipsBtn?.addEventListener("click", () =>
+          DOM.tipsPanel.classList.toggle("open")
+        );
+        DOM.closeTips?.addEventListener("click", () =>
+          DOM.tipsPanel.classList.remove("open")
+        );
+
+        // User dropdown
+        DOM.userMenuBtn?.addEventListener("click", (e) => {
+          e.stopPropagation();
+          DOM.userDropdown.classList.toggle("show");
+        });
+        document.addEventListener("click", () =>
+          DOM.userDropdown.classList.remove("show")
+        );
+
+        // Logout
+        const logout = async () => {
+          try {
+            const res = await fetch("/logout", { method: "POST" });
+            if (res.ok) window.location.href = "/login";
+            else {
+              const data = await res.json().catch(() => ({}));
+              alert(data.message || "Logout failed");
+            }
+          } catch (e) {
+            console.error(e);
+            alert("Logout failed");
+          }
+        };
+        DOM.logoutBtn?.addEventListener("click", logout);
+        DOM.dropdownLogoutBtn?.addEventListener("click", logout);
+      },
+    };
+
+    // ================================================================
+    // 5. LANGUAGE MODULE
+    // ================================================================
+    const Language = {
+      async init() {
+        await loadTranslations();
+        this.buildPills();
+        this.syncDropdown();
+        this.attachListeners();
+        applyTranslations(currentLang);
+      },
+
+      buildPills() {
+        if (!DOM.langDesktop) return;
+        DOM.langDesktop.innerHTML = "";
+
+        Object.entries(LANGS).forEach(([code, { label }]) => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "lang-pill";
+          btn.textContent = label;
+          btn.dataset.lang = code;
+
+          if (code === currentLang) btn.classList.add("active");
+
+          btn.addEventListener("click", () => this.set(code));
+          DOM.langDesktop.appendChild(btn);
+        });
+      },
+
+      syncDropdown() {
+        if (DOM.langDropdown) DOM.langDropdown.value = currentLang;
+      },
+
+      attachListeners() {
+        DOM.langDropdown?.addEventListener("change", (e) =>
+          this.set(e.target.value)
+        );
+      },
+
+      // Helper: Get translated string safely
+      t(key, fallback) {
+        const dict = translations[currentLang] || translations["en"] || {};
+        return dict[key] || fallback;
+      },
+
+      set(code) {
+        if (!LANGS[code]) return;
+
+        const previousLang = currentLang;
+        currentLang = code;
+        localStorage.setItem("med_lang", code);
+
+        this.buildPills();
+        this.syncDropdown();
+        applyTranslations(code);
+
+        // Show feedback in the NEW language
+        const feedbackMsg =
+          this.t("msg_language_changed", "Language changed to") +
+          ` ${LANGS[code].label}`;
+        Utils.addSystemMessage(feedbackMsg);
+      },
+    };
+
+    // ================================================================
+    // 6. CONVERSATION & HISTORY MODULE
+    // ================================================================
+    const Conversation = {
+      // Helper: Get translated string safely
+
+      t(key, fallback) {
+        const dict = translations[currentLang] || translations["en"] || {};
+        return dict[key] || fallback;
+      },
+
+      async load(id = null) {
+        DOM.messages.innerHTML = "";
+
+        if (id === state.activeConversationId) {
+          Utils.addSystemMessage(
+            Conversation.t(
+              "msg_welcome_back",
+              "Welcome back! Ask me any medical question or upload a report."
+            )
+          );
+          return;
+        }
+
+        if (!id) {
+          try {
+            await fetch("/end_chat", { method: "POST" });
+          } catch (e) {
+            console.error("End chat error:", e);
+          }
+          state.activeConversationId = null;
+          Utils.addSystemMessage(
+            Conversation.t(
+              "msg_new_conversation_started",
+              "New conversation started. Upload a report or ask a question."
+            )
+          );
+          return;
+        }
+
+        try {
+          const res = await fetch(`/conversation/${id}`);
+          if (!res.ok) throw new Error("Failed to load");
+          const data = await res.json();
+
+          data.messages.forEach((msg) => {
+            const content =
+              msg.role === "bot"
+                ? marked.parse(msg.message || "")
+                : Utils.escapeHtml(msg.message || "");
+            Utils.addMessage(msg.role, content, false);
+          });
+
+          state.activeConversationId = data.conversation_id;
+          DOM.messages.scrollTop = DOM.messages.scrollHeight;
+
+          const firstMsg = data.messages[0]?.message || "";
+          const preview =
+            firstMsg.length > 40 ? firstMsg.substring(0, 40) + "..." : firstMsg;
+          Utils.addSystemMessage(
+            Conversation.t("msg_loaded_conversation", "Loaded conversation") +
+              `: ${preview}`
+          );
+        } catch (err) {
+          console.error("Load conversation error:", err);
+          Utils.addSystemMessage(
+            Conversation.t(
+              "msg_could_not_load_history",
+              "Could not load chat history. Starting a new session."
+            )
+          );
+          state.activeConversationId = null;
+        }
+      },
+
+      async toggleHistoryList(e) {
+        e.preventDefault();
+        let container = document.getElementById("historyListContainer");
+
+        if (container) {
+          container.remove();
+          DOM.historyLink.classList.remove("active");
+          return;
+        }
+
+        DOM.historyLink.classList.add("active");
+        container = document.createElement("div");
+        container.id = "historyListContainer";
+        container.className = "history-list-container";
+        DOM.historyLink.insertAdjacentElement("afterend", container);
+
+        try {
+          const res = await fetch("/conversations");
+          const { conversations = [] } = await res.json();
+
+          if (!conversations.length) {
+            container.innerHTML = `
+          <span style="padding:6px;color:var(--text-muted);">
+            ${Conversation.t("msg_no_past_chats", "No past chats.")}
+          </span>`;
+            return;
+          }
+
+          conversations.forEach((conv) => {
+            const row = document.createElement("div");
+            row.className = "history-item-row";
+            row.innerHTML = `
+          <a href="#" class="sidebar-link history-item" data-id="${conv.id}">
+            <i class="bi bi-chat-text"></i>
+            <span>${Utils.escapeHtml(conv.title)}...</span>
+          </a>
+          <button class="delete-chat-btn" data-id="${conv.id}" title="${Conversation.t(
+              "btn_delete",
+              "Delete"
+            )}">
+            <i class="bi bi-trash"></i>
+          </button>
+        `;
+
+            row.querySelector(".history-item").onclick = (ev) => {
+              ev.preventDefault();
+              DOM.sidebar.classList.remove("open");
+              Conversation.load(conv.id);
+            };
+
+            row.querySelector(".delete-chat-btn").onclick = (ev) => {
+              ev.stopPropagation();
+              state.conversationToDelete = { id: conv.id, row };
+              DOM.deleteModal.classList.remove("hidden");
+            };
+
+            container.appendChild(row);
+          });
+        } catch (err) {
+          console.error("History Fetch Error:", err);
+          container.innerHTML = `
+        <span style="padding:6px;color:red;">
+          ${Conversation.t("msg_error_loading_history", "Error loading history.")}
+        </span>`;
+        }
+      },
+
+      init() {
+        DOM.newChatBtn?.addEventListener("click", () => this.load(null));
+        DOM.historyLink?.addEventListener("click", (e) =>
+          Conversation.toggleHistoryList(e)
+        );
+
+        // Delete modal — now fully translated
+        DOM.cancelDeleteBtn.onclick = () => {
+          DOM.deleteModal.classList.add("hidden");
+          state.conversationToDelete = null;
+        };
+
+        DOM.confirmDeleteBtn.onclick = async () => {
+          if (!state.conversationToDelete) return;
+          const { id, row } = state.conversationToDelete;
+
+          try {
+            const res = await fetch(`/conversation/delete/${id}`, {
+              method: "POST",
+            });
+            const data = await res.json();
+
+            if (data.status === "success") {
+              row.remove();
+              if (state.activeConversationId === id) this.load(null);
+              Utils.addSystemMessage(
+                Conversation.t("msg_chat_deleted", "Conversation deleted.")
+              );
+            } else {
+              alert(Conversation.t("msg_delete_failed", "Failed to delete chat."));
+            }
+          } catch (err) {
+            console.error(err);
+            alert(Conversation.t("msg_server_error", "Server error."));
+          }
+
+          DOM.deleteModal.classList.add("hidden");
+          state.conversationToDelete = null;
+        };
+      },
+    };
+
+    // ================================================================
+    // 7. CHAT INPUT & SEND MODULE
+    // ================================================================
+    const Chat = {
+      async send(text) {
+        if (!text.trim()) return;
+        Utils.addMessage("user", Utils.escapeHtml(text));
+        DOM.textInput.value = "";
+        DOM.textInput.style.height = "auto";
+        Utils.showTyping();
+
+        try {
+          const data = new URLSearchParams();
+          data.append("msg", text);
+          data.append("lang", currentLang);
+
+          const res = await fetch("/get", { method: "POST", body: data });
+          const response = await res.text();
+          Utils.hideTyping();
+          Utils.addMessage("bot", marked.parse(response || "No response"));
+
+          // Refresh history if new conversation started
+          if (
+            !state.activeConversationId &&
+            document.getElementById("historyListContainer")
+          ) {
+            document.getElementById("historyListContainer").remove();
+            Conversation.toggleHistoryList(new Event("click"));
+          }
+        } catch (err) {
+          Utils.hideTyping();
+          Utils.addMessage(
+            "bot",
+            `<div style="color:var(--danger)">Error: could not reach server.</div>`
+          );
+          console.error(err);
+        }
+      },
+
+      async upload(file) {
+        if (!file) return;
+        Utils.addMessage(
+          "user",
+          `<strong>Uploaded:</strong> ${Utils.escapeHtml(file.name)}`
+        );
+        Utils.showTyping();
+
+        const fd = new FormData();
+        fd.append("file", file);
+
+        try {
+          const res = await fetch("/upload_report", {
+            method: "POST",
+            body: fd,
+          });
+          const text = await res.text();
+          Utils.hideTyping();
+          Utils.addMessage(
+            "bot",
+            marked.parse(text || "No interpretation returned.")
+          );
+        } catch (err) {
+          Utils.hideTyping();
+          Utils.addMessage(
+            "bot",
+            `<div style="color:var(--danger)">Upload failed.</div>`
+          );
+        } finally {
+          DOM.uploadInput.value = "";
+        }
+      },
+
+      init() {
+        DOM.sendBtn?.addEventListener("click", (e) => {
+          e.preventDefault();
+          this.send(DOM.textInput.value.trim());
+        });
+
+        DOM.textInput?.addEventListener("keydown", (e) => {
+          if (e.key === "Enter" && !e.shiftKey) {
+            e.preventDefault();
+            DOM.sendBtn.click();
+          }
+        });
+
+        DOM.textInput?.addEventListener("input", () => {
+          DOM.textInput.style.height = "auto";
+          DOM.textInput.style.height =
+            Math.min(220, DOM.textInput.scrollHeight) + "px";
+        });
+
+        DOM.attachBtn?.addEventListener("click", () => DOM.uploadInput.click());
+        DOM.uploadInput?.addEventListener("change", (e) =>
+          this.upload(e.target.files[0])
+        );
+      },
+    };
+
+    // ================================================================
+    // 8. NEWS MODULE
+    // ================================================================
+    const News = {
+      async show() {
+        DOM.messages.innerHTML = "";
+
+        const header = document.createElement("div");
+        header.style.padding = "12px 8px";
+        header.innerHTML = `<div style="font-weight:700;color:var(--primary);font-size:1.1rem">Latest Medical News</div>`;
+        DOM.messages.appendChild(header);
+
+        const grid = document.createElement("div");
+        grid.className = "news-grid";
+        DOM.messages.appendChild(grid);
+
+        const loading = document.createElement("div");
+        loading.className = "news-loading";
+        loading.textContent = "Loading news...";
+        grid.appendChild(loading);
+
+        try {
+          const res = await fetch(`/news?lang=${currentLang}`);
+          const data = await res.json();
+
+          grid.innerHTML = "";
+
+          if (!data?.news?.length) {
+            grid.innerHTML =
+              "<div style='color:var(--text-muted)'>No news available.</div>";
+            return;
+          }
+
+          data.news.forEach((item) => {
+            const imgSrc = item.image || "/static/default-news.png";
+            const card = document.createElement("article");
+            card.className = "news-tile";
+            card.innerHTML = `
+            <div class="news-card">
+              <div class="news-img-wrap">
+                <img class="news-img" src="${imgSrc}" onerror="this.src='/static/default-news.png'">
+              </div>
+              <div class="news-content">
+                <h3 class="news-title">${Utils.escapeHtml(item.title)}</h3>
+                <p class="news-summary">${Utils.escapeHtml(
+                  (item.summary || "").slice(0, 200)
+                )}...</p>
+                <a class="news-link" href="${
+                  item.link
+                }" target="_blank">Read full article →</a>
+              </div>
+            </div>
+          `;
+            grid.appendChild(card);
+          });
+
+          DOM.messages.scrollTop = 0;
+        } catch (err) {
+          console.error("News fetch error:", err);
+          grid.innerHTML =
+            "<div style='color:red;padding:12px;'>Error loading news.</div>";
+        }
+      },
+
+      init() {
+        DOM.newsBtn?.addEventListener("click", () => this.show());
+      },
+    };
+
+    // ================================================================
+    // 9. RESPONSIVE & INITIALIZATION
+    // ================================================================
+    const Responsive = {
+      adjustLangControls() {
+        const pills = document.querySelector(".lang-pills");
+        const dropdown = document.querySelector(".lang-dropdown");
+        if (!pills || !dropdown) return;
+
+        if (window.innerWidth <= 900) {
+          dropdown.style.display = "block";
+          pills.style.display = "none";
+        } else {
+          dropdown.style.display = "none";
+          pills.style.display = "flex";
+        }
+      },
+
+      init() {
+        window.addEventListener("resize", () => this.adjustLangControls());
+        this.adjustLangControls();
+      },
+    };
+
+    // Inject required CSS (unchanged)
+    const style = document.createElement("style");
+    style.innerHTML = `
     @keyframes blink{0%{transform:scale(.6);opacity:.25}50%{transform:scale(1);opacity:1}100%{transform:scale(.6);opacity:.25}}
     .history-list-container { display: flex; flex-direction: column; padding-bottom: 0.5rem; margin-top: 0.5rem; border-top: 1px solid var(--border); }
     .history-item { padding: 0.55rem 0.6rem; margin-left: 0.5rem; border-radius: 0.6rem; border-left: 3px solid transparent; }
     .history-item:hover { border-left: 3px solid var(--primary); }
-`; 
-document.head.appendChild(styleEl);
+  `;
+    document.head.appendChild(style);
 
+    // ================================================================
+    // 10. APP INITIALIZATION
+    // ================================================================
+    Theme.init();
+    UI.init();
 
-// Send query to backend
-async function sendQuery(text){
-  addMessage('user', escapeHtml(text));
-  textInput.value = '';
-  textInput.style.height = 'auto';
-  showTyping();
-  try{
-    const data = new URLSearchParams();
-    data.append('msg', text);
-    data.append('lang', selectedLang);
-    // Backend will automatically get/create the current_chat_id from the session
-    const res = await fetch('/get', { method: 'POST', body: data }); 
-    const txt = await res.text();
-    hideTyping();
-    
-    // Use marked.parse for rendering bot response
-    addMessage('bot', marked.parse(txt || 'No response'));
-    
-    // After the first message, update the history list to show the new thread
-    if (!activeConversationId) {
-        // Simple reload of the history list, but keep it closed
-        // This is a minimal implementation; a cleaner way would be to just update the active list if open
-        if (document.getElementById('historyListContainer')) {
-             document.getElementById('historyListContainer').remove();
-             toggleHistoryList(new Event('click')); // Re-render the list
-        }
-    }
-    
-  }catch(err){
-    hideTyping();
-    addMessage('bot', `<div style="color:var(--danger)">Error: could not reach server.</div>`);
-    console.error(err);
-  }
-}
+    // Language must load FIRST
+    await Language.init(); // ← Wait for translations to load
 
-// Form submit & keyboard
-sendBtn && sendBtn.addEventListener('click', (e)=>{ e.preventDefault(); const t = textInput.value.trim(); if(!t) return; sendQuery(t); });
-textInput && textInput.addEventListener('keydown', (e)=>{ if(e.key === 'Enter' && !e.shiftKey){ e.preventDefault(); sendBtn.click(); }});
-textInput && textInput.addEventListener('input', ()=>{ textInput.style.height='auto'; textInput.style.height = Math.min(220, textInput.scrollHeight) + 'px'; });
+    Conversation.init();
+    Chat.init();
+    News.init();
+    Responsive.init();
 
-// Upload
-attachBtn && attachBtn.addEventListener('click', ()=> uploadInput.click());
-uploadInput && uploadInput.addEventListener('change', async (e)=> {
-  const file = e.target.files[0]; if(!file) return;
-  addMessage('user', `<strong>Uploaded:</strong> ${escapeHtml(file.name)}`);
-  showTyping();
-  const fd = new FormData(); fd.append('file', file);
-  try{
-    const res = await fetch('/upload_report', { method:'POST', body: fd });
-    const txt = await res.text();
-    hideTyping();
-    addMessage('bot', marked.parse(txt || 'No interpretation returned.'));
-  }catch(err){
-    hideTyping();
-    addMessage('bot', `<div style="color:var(--danger)">Upload failed. Backend endpoint /upload_report required.</div>`);
-  } finally { uploadInput.value = ''; }
-});
+    // Now safe: translations are ready → system messages will be translated
+    Conversation.load(null);
 
-
-// ================================================================
-// Initial Load & Event Listeners
-// ================================================================
-
-// New chat button now calls loadConversation(null) to reset the session
-newChatBtn && newChatBtn.addEventListener('click', ()=> loadConversation(null));
-
-// History link now calls the function to display the list
-historyLink && historyLink.addEventListener('click', toggleHistoryList);
-
-
-// Initial action on load: load the *current* conversation thread
-window.addEventListener('load', () => {
-    // Attempt to load the conversation currently saved in the session (if any)
-    // If the session ID is null, loadConversation(null) will start a new chat.
-    loadConversation(null); 
-});
-
-
-// Responsive language controls
-function adjustLangControls(){
-  const pills = document.querySelector('.lang-pills');
-  const dropdown = document.querySelector('.lang-dropdown');
-  if(!pills || !dropdown) return;
-  
-  if(window.innerWidth <= 900){ dropdown.style.display = 'block'; pills.style.display = 'none'; }
-  else { dropdown.style.display = 'none'; pills.style.display = 'flex'; }
-}
-window.addEventListener('resize', adjustLangControls);
-adjustLangControls();
-buildLangPills();
+    // FINAL: Re-apply translations in case DOM changed after load
+    applyTranslations(currentLang);
+  });
+})();

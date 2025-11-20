@@ -4,83 +4,108 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Medi-Assist AI — Chat</title>
+  <title data-i18n="page_title">Medi-Assist AI — Chat</title>
 
-  <!-- Tailwind (utility helpers) -->
+  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
 
-  <!-- Icons & Markdown -->
+  <!-- Bootstrap Icons + Markdown Renderer -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
-  <!-- Project CSS -->
+  <!-- Custom Project Styles -->
   <link rel="stylesheet" href="{{ url_for('static', filename='chat.css') }}">
+
+  <!-- Preload translations (optional, improves UX) -->
+  <link rel="preload" href="{{ url_for('static', filename='translations.json') }}" as="fetch" crossorigin="anonymous">
+
+  <!-- Webpage icon -->
+  <link rel="icon" href="{{ url_for('static', filename='logo.png') }}" type="image/x-icon">
+  <!-- <link rel="apple-touch-icon" href="{{ url_for('static', filename='logo.png') }}"> -->
 </head>
 
 <body>
+  <!-- ============================================= -->
+  <!-- APP SHELL – Main Layout Container -->
+  <!-- ============================================= -->
   <div class="app-shell">
-    <!-- SIDEBAR -->
-    <aside id="sidebar" class="sidebar" aria-label="Sidebar">
-      <!-- TOP -->
+
+    <!-- ============================================= -->
+    <!-- SIDEBAR (Left Navigation Panel) -->
+    <!-- ============================================= -->
+    <aside id="sidebar" class="sidebar">
+
+      <!-- Sidebar Top Section -->
       <div>
         <div class="top-row">
-          <div class="brand" aria-hidden="true">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" style="display:block">
-              <rect width="24" height="24" rx="6" fill="var(--primary)"></rect>
-              <path d="M7 12h10M7 8h10M7 16h6" stroke="#fff" stroke-width="1.4" stroke-linecap="round" />
-            </svg>
-            Medi-Assist
+          <div class="brand">
+            <img src="/static/logo.png" alt="Medi-Assist Logo" class="brand-logo">
+            <span data-i18n="brand">Medi-Assist</span>
           </div>
 
-          <button id="closeSidebarBtn" class="btn-ghost md:hidden" title="Close sidebar"><i
-              class="bi bi-x-lg"></i></button>
+          <button id="closeSidebarBtn" class="btn-ghost md:hidden" title="Close menu">
+            <i class="bi bi-x-lg"></i>
+          </button>
         </div>
 
-        <!-- NAV -->
+        <!-- Navigation Links -->
         <div class="nav-links">
           <button id="newChatBtn" class="btn new-chat">
-            <i class="bi bi-plus-lg"></i> New chat
+            <i class="bi bi-plus-lg"></i> <span data-i18n="new_chat">New chat</span>
           </button>
 
-          <a href="#" class="sidebar-link">
-            <i class="bi bi-clock-history"></i> <span>History</span>
+          <a href="#" class="sidebar-link" id="historyLink">
+            <i class="bi bi-clock-history"></i> <span data-i18n="history">History</span>
           </a>
 
           <a id="quickTipsBtn" class="sidebar-link">
-            <i class="bi bi-lightbulb"></i> <span>Quick tips</span>
+            <i class="bi bi-lightbulb"></i> <span data-i18n="quick_tips">Quick tips</span>
+          </a>
+
+          <a id="newsBtn" class="sidebar-link">
+            <i class="bi bi-newspaper"></i> <span data-i18n="medical_news">Medical News</span>
           </a>
         </div>
       </div>
 
-      <!-- BOTTOM -->
+      <!-- Sidebar Bottom Actions -->
       <div class="sidebar-bottom">
-        <button id="themeToggle" class="btn-ghost" title="Toggle theme">
-          <i class="bi bi-moon-stars-fill"></i>
-          <span>Theme</span>
+        <button id="themeToggle" class="btn-ghost">
+          <i class="bi bi-moon-stars-fill"></i> <span data-i18n="theme">Theme</span>
         </button>
 
-        <button id="logoutBtn" class="btn-ghost logout" title="Logout">
-          <i class="bi bi-door-open"></i>
-          <span>Logout</span>
+        <button id="logoutBtn" class="btn-ghost logout">
+          <i class="bi bi-door-open"></i> <span data-i18n="logout">Logout</span>
         </button>
       </div>
+
     </aside>
 
-    <!-- MAIN PANEL -->
-    <main class="panel" role="main">
-      <!-- HEADER -->
-      <header class="header" role="banner">
+
+    <!-- ============================================= -->
+    <!-- MAIN PANEL – Chat Interface -->
+    <!-- ============================================= -->
+    <main class="panel">
+
+      <!-- Header -->
+      <header class="header">
+
+        <!-- Left: Mobile Menu + Title -->
         <div class="header-left">
-          <button id="menuToggleBtn" class="btn-ghost md:hidden" title="Open sidebar"><i
-              class="bi bi-list"></i></button>
-          <h1>Medi-Assist Chat</h1>
+          <button id="menuToggleBtn" class="btn-ghost md:hidden" title="Open menu">
+            <i class="bi bi-list"></i>
+          </button>
+          <h1 data-i18n="chat_title">Medi-Assist Chat</h1>
         </div>
 
-        <div class="header-center" aria-hidden="false">
-          <div id="langSelectDesktop" class="lang-pills" aria-label="Language selection"></div>
+        <!-- Center: Language Selector -->
+        <div class="header-center">
+          <div id="langSelectDesktop" class="lang-pills">
+            <!-- Filled dynamically by JS -->
+          </div>
 
           <div class="lang-dropdown" style="display:none;">
-            <select id="langDropdown" class="lang-dropdown-select" aria-label="Select language">
+            <select id="langDropdown" class="lang-dropdown-select">
               <option value="en">English</option>
               <option value="hi">हिन्दी</option>
               <option value="ta">தமிழ்</option>
@@ -89,67 +114,109 @@
           </div>
         </div>
 
-        <div class="header-right" style="position:relative">
-          <!-- user initial avatar (Jinja inject from session if present) -->
-          <button id="userMenuBtn" class="btn-ghost" aria-haspopup="true"
-            title="{{ session.get('user_name') or session.get('user_email') or 'Account' }}">
+        <!-- Right: User Menu -->
+        <div class="header-right">
+          <button id="userMenuBtn" class="btn-ghost"
+            title="{{ session.get('user_name') or session.get('user_email') }}">
             <div class="header-avatar">
               {{ (session.get('user_name') or session.get('user_email') or 'G')[:1].upper() }}
             </div>
           </button>
 
-          <div id="userDropdown" class="dropdown" role="menu" aria-hidden="true">
+          <div id="userDropdown" class="dropdown">
             <div class="dropdown-name">{{ session.get('user_name') or "Guest" }}</div>
             <div class="dropdown-email">{{ session.get('user_email') or "guest@example.com" }}</div>
             <div class="dropdown-logout">
-              <button id="dropdownLogoutBtn" class="btn-ghost logout" title="Logout">Logout</button>
+              <button id="dropdownLogoutBtn" class="btn-ghost logout" data-i18n="logout">Logout</button>
             </div>
           </div>
         </div>
+
       </header>
 
-      <!-- CHAT AREA -->
+      <!-- Chat Area (Messages + Input) -->
       <div class="chat-area">
-        <div id="messages" class="messages" aria-live="polite"></div>
 
-        <div class="composer" role="form" aria-label="Message composer">
-          <textarea id="text" placeholder="Ask about symptoms, tests or upload a report..."
-            aria-label="Message"></textarea>
+        <!-- Messages Container -->
+        <div id="messages" class="messages"></div>
+
+        <!-- Message Composer -->
+        <div class="composer">
+          <textarea id="text" data-i18n-placeholder="ask_placeholder"
+            placeholder="Ask about symptoms, tests or upload a report..."></textarea>
 
           <div class="actions">
             <input id="uploadInput" type="file" accept=".pdf,.jpg,.png,.txt" style="display:none" />
+
             <button id="attachBtn" class="btn-ghost disabled-btn has-tooltip" disabled>
               <i class="bi bi-paperclip"></i>
-              <span class="tooltip-text">Updated soon</span>
+              <span class="tooltip-text" data-i18n="attach_tooltip">Updated soon</span>
             </button>
-            <button id="sendBtn" class="btn-primary" title="Send"><i class="bi bi-send-fill"></i></button>
+
+            <button id="sendBtn" class="btn-primary" title="Send">
+              <i class="bi bi-send-fill"></i>
+            </button>
           </div>
         </div>
+
       </div>
+
+      <!-- Footer Disclaimer -->
       <div class="disclaimer">
-        <p><b>Always consult with a qualified healthcare provider</b> for any health concerns or before making any
-          medical decisions.</p>
-        <p class="status">Medi Chat is still under development</p>
+        <p><b data-i18n="disclaimer_1">Always consult with a qualified healthcare provider before making medical
+            decisions.</b></p>
+        <p class="status" data-i18n="disclaimer_2">Medi Chat is still under development</p>
       </div>
+
     </main>
+
   </div>
 
-  <!-- Quick tips drawer -->
-  <div id="tipsPanel" class="tips" role="dialog" aria-hidden="true">
+
+  <!-- ============================================= -->
+  <!-- OVERLAY PANELS -->
+  <!-- ============================================= -->
+
+  <!-- Quick Tips Drawer -->
+  <div id="tipsPanel" class="tips">
     <div class="tips-head">
-      <strong>Quick tips</strong>
-      <button id="closeTips" class="btn-ghost"><i class="bi bi-x-lg"></i></button>
+      <strong data-i18n="tips_title">Quick tips</strong>
+      <button id="closeTips" class="btn-ghost" title="Close"><i class="bi bi-x-lg"></i></button>
     </div>
+
     <ul class="tips-list">
-      <li>Be specific: include duration & severity.</li>
-      <li>Upload lab reports (CBC/LFT) for interpretation.</li>
-      <li>Do not share personal identifiers.</li>
-      <li>In emergencies, contact local services.</li>
+      <li data-i18n="tip_1">Be specific: include duration and severity.</li>
+      <li data-i18n="tip_2">Upload lab reports (CBC/LFT) for interpretation.</li>
+      <li data-i18n="tip_3">Do not share personal identifiers.</li>
+      <li data-i18n="tip_4">In emergencies, contact local services.</li>
     </ul>
   </div>
 
-  <!-- Project JS -->
+  <!-- Delete Conversation Modal -->
+  <div id="deleteModal" class="delete-modal-overlay hidden">
+    <div class="delete-modal">
+      <h3 data-i18n="delete_title">Delete Conversation?</h3>
+      <p data-i18n="delete_confirm">This action cannot be undone.</p>
+
+      <div class="delete-modal-actions">
+        <button id="cancelDeleteBtn" class="cancel-btn" data-i18n="cancel">Cancel</button>
+        <button id="confirmDeleteBtn" class="confirm-btn" data-i18n="delete">Delete</button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ============================================= -->
+  <!-- SCRIPTS -->
+  <!-- ============================================= -->
+  <!-- <script src="{{ url_for('static', filename='chat.js') }}"></script> -->
+  <!-- TEMPORARY: DISABLE chat.js TO SEE THE TRUTH -->
   <script src="{{ url_for('static', filename='chat.js') }}"></script>
+
+  <!-- <script>
+    console.log("chat.js is DISABLED — if logo stays, JS was the killer");
+  </script> -->
+
 </body>
 
 </html>

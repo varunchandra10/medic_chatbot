@@ -25,4 +25,6 @@ nltk==3.9.1
 pymongo==4.6.1
 Flask-Bcrypt==1.0.1
 
+feedparser==6.0.10
+
 gunicorn
