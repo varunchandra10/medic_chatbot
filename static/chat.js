@@ -157,6 +157,17 @@
       },
     };
 
+    function showToast(message, type = "info") {
+  const container = document.getElementById("toast-container");
+  const toast = document.createElement("div");
+  toast.className = `toast ${type}`;
+  toast.textContent = message;
+  
+  container.appendChild(toast);
+  setTimeout(() => toast.remove(), 3500);
+}
+
+
     // ================================================================
     // 3. THEME MODULE
     // ================================================================
@@ -226,11 +237,11 @@
             if (res.ok) window.location.href = "/login";
             else {
               const data = await res.json().catch(() => ({}));
-              alert(data.message || "Logout failed");
+              showToast(data.message || "Logout failed");
             }
           } catch (e) {
             console.error(e);
-            alert("Logout failed");
+            showToast("Logout failed");
           }
         };
         DOM.logoutBtn?.addEventListener("click", logout);
@@ -299,7 +310,7 @@
         const feedbackMsg =
           this.t("msg_language_changed", "Language changed to") +
           ` ${LANGS[code].label}`;
-        Utils.addSystemMessage(feedbackMsg);
+        showToast(feedbackMsg);
       },
     };
 
@@ -334,7 +345,7 @@
             console.error("End chat error:", e);
           }
           state.activeConversationId = null;
-          Utils.addSystemMessage(
+          showToast(
             Conversation.t(
               "msg_new_conversation_started",
               "New conversation started. Upload a report or ask a question."
@@ -362,13 +373,13 @@
           const firstMsg = data.messages[0]?.message || "";
           const preview =
             firstMsg.length > 40 ? firstMsg.substring(0, 40) + "..." : firstMsg;
-          Utils.addSystemMessage(
+          showToast(
             Conversation.t("msg_loaded_conversation", "Loaded conversation") +
               `: ${preview}`
           );
         } catch (err) {
           console.error("Load conversation error:", err);
-          Utils.addSystemMessage(
+          showToast(
             Conversation.t(
               "msg_could_not_load_history",
               "Could not load chat history. Starting a new session."
@@ -470,15 +481,15 @@
             if (data.status === "success") {
               row.remove();
               if (state.activeConversationId === id) this.load(null);
-              Utils.addSystemMessage(
+              showToast(
                 Conversation.t("msg_chat_deleted", "Conversation deleted.")
               );
             } else {
-              alert(Conversation.t("msg_delete_failed", "Failed to delete chat."));
+              showToast(Conversation.t("msg_delete_failed", "Failed to delete chat."));
             }
           } catch (err) {
             console.error(err);
-            alert(Conversation.t("msg_server_error", "Server error."));
+            showToast(Conversation.t("msg_server_error", "Server error."));
           }
 
           DOM.deleteModal.classList.add("hidden");

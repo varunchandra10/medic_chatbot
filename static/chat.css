@@ -1,49 +1,57 @@
 /* ===========================
    1. THEME VARIABLES
    =========================== */
+
 :root {
-  --primary: #6D5DD3;
-  --primary-600: #5b4ac0;
-  --accent: #7f6fe0;
+  /* BRAND COLORS – Medical AI Indigo + Cyan Glow */
+  --primary: #5D5FEF;        /* Vibrant Indigo (main brand) */
+  --primary-600: #4C4AD9;     /* Hover state */
+  --accent: #7C3AED;         /* Violet accent (buttons, highlights) */
+  --accent-hover: #6D28D9;
+  --cyan: #06D6A0;           /* Success / health green-cyan */
 
-  --bg-page: #f6f7fb;
-  --bg-panel: #ffffff;
-  --bg-sidebar: #ffffff;
-  --bg-header: #ffffff;
-  --bg-composer: #fbfbfd;
+  /* LIGHT MODE – Fresh, Clean & Professional */
+  --bg-page: #F8FAFF;             /* Very light indigo tint */
+  --bg-panel: #FFFFFF;
+  --bg-sidebar: #FFFFFF;
+  --bg-header: #FFFFFF;
+  --bg-composer: #F0F4FF;         /* Soft indigo glow */
 
-  --msg-user: var(--primary);
-  --msg-bot: #f4f6fb;
+  --msg-user: linear-gradient(135deg, #5D5FEF, #7C3AED);  /* Stunning gradient bubble */
+  --msg-bot: #E0E7FF;             /* Light indigo for bot messages */
 
-  --text-primary: #0f1724;
-  --text-muted: #596273;
-  --border: #e6e9f2;
+  --text-primary: black;        /* Dark slate */
+  --text-muted: black;
+  --border: #E0E7FF;              /* Soft indigo border */
 
-  --danger: #e74c3c;
-  --success: #16a34a;
+  --danger: #EF4444;
+  --success: #06D6A0;
+  --warning: #F59E0B;
 
-  --shadow: 0 6px 24px rgba(16, 24, 40, 0.06);
-  --hover-sidebar: rgba(109, 93, 211, 0.06);
+  --shadow: 0 10px 40px rgba(93, 95, 239, 0.15);
+  --hover-sidebar: rgba(93, 95, 239, 0.1);
 
   --z-sidebar: 50;
   --z-dropdown: 40;
 }
 
-/* Dark Mode */
+
 body.dark {
-  --bg-page: #0b1020;
-  --bg-panel: #0f1724;
-  --bg-sidebar: #0b1220;
-  --bg-header: #0b1220;
-  --bg-composer: #0f1724;
+  --bg-page: #0f1126;           /* Deep indigo-blue */
+  --bg-panel: #161b33;          /* Navy panel */
+  --bg-sidebar: #0d0f24;
+  --bg-header: #0d0f24;
+  --bg-composer: #1a1f3d;
 
-  --msg-bot: #172033;
+  --msg-user: linear-gradient(135deg, #6366f1, #8b5cf6);  /* Same gradient – pops beautifully */
+  --msg-bot: #1e293b;           /* Slate-800 – soft contrast */
 
-  --text-primary: #e6eef6;
-  --text-muted: #94a3b8;
-  --border: #19232f;
+  --text-primary: #e0e7ff;      /* Light indigo-white */
+  --text-muted: #94a3b8;        /* Slate-400 */
+  --border: #374266;            /* Indigo-gray border */
 
-  --shadow: 0 10px 30px rgba(2, 6, 23, 0.6);
+  --shadow: 0 10px 40px rgba(99, 102, 241, 0.25), 0 0 60px rgba(139, 92, 246, 0.15);
+  --hover-sidebar: rgba(139, 92, 246, 0.15);
 }
 
 /* ===========================
@@ -88,20 +96,18 @@ body {
 .brand {
   display: flex;
   align-items: center;
-  gap: 10px;
-  font-weight: 600;
-  font-size: 1.1rem;
-  color: white;
+  gap: 12px;
+  font-weight: 700;
+  font-size: 1.4rem;
+  color: var(--primary);
 }
 
 .brand-logo {
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
   object-fit: contain;
-  background: rgba(255, 255, 255, 0.15);
-  padding: 4px;
-  flex-shrink: 0;
+  filter: drop-shadow(0 0 20px rgba(93, 95, 239, 0.4));
 }
 
 .brand-text {
@@ -583,20 +589,19 @@ body.dark .bubble pre { background: rgba(255,255,255,0.1); }
    9. DISCLAIMER
    =========================== */
 .disclaimer {
-  padding: 0.75rem 1rem;
-  margin: 0 1rem 0.5rem;
+  padding: 1rem 1.25rem;
   font-size: 0.85rem;
   line-height: 1.4;
+  width: auto;
   text-align: center;
   color: var(--text-muted);
   background: var(--bg-composer);
   border: 1px solid var(--border);
-  border-radius: 8px;
 }
 
 .disclaimer p {
   margin: 0.2rem 0;
-  font-size: 10px;
+  font-size: 16px;
 }
 
 .disclaimer b {
@@ -607,6 +612,21 @@ body.dark .bubble pre { background: rgba(255,255,255,0.1); }
   font-style: italic;
   margin-top: 0.5rem;
   color: red;
+}
+
+@media (max-width: 640px) {
+  .disclaimer {
+    width: 100%;
+    padding: 1rem auto;
+  }
+
+  .disclaimer p{
+    font-size: 11px;  /* smaller for mobile */
+  }
+
+  .disclaimer .status {
+    font-size: 11px;
+  }
 }
 
 /* ===========================
@@ -821,3 +841,31 @@ body.dark .bubble pre { background: rgba(255,255,255,0.1); }
 .confirm-btn:hover {
   opacity: 0.85;
 }
+
+#toast-container {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 99999;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.toast {
+  padding: 12px 18px;
+  border-radius: 8px;
+  color: white;
+  font-size: 0.95rem;
+  animation: fadeIn 0.4s ease, fadeOut 0.4s ease 3s;
+  background: #333;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.25);
+  opacity: 0.95;
+}
+
+.toast.success { background: #28a745; }
+.toast.error   { background: #dc3545; }
+.toast.info    { background: #0d6efd; }
+
+@keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }

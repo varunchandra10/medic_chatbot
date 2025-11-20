@@ -1,219 +1,261 @@
-# 🩺 Multilingual Medical Chatbot (Flask + LangChain + Gemini + Pinecone)
+# Medi-Assist AI: Multilingual Medical Chatbot (Flask + LangChain + Gemini + Pinecone)
 
-## 🚀 Overview
-This project implements a **multilingual medical chatbot** built with **Flask** and **LangChain**, powered by **Gemini 2.0 Flash** for language understanding and **Pinecone** for semantic search.
+## Demo
 
-It supports **English**, **Hindi**, **Tamil**, and **Telugu** through real-time translation and retrieval-augmented generation (RAG).
+**Live Demo:** [https://medic-chatbot-567649654632.europe-west1.run.app/login](https://medic-chatbot-567649654632.europe-west1.run.app/login)  
+
+![example_demo_image](<Screenshot 2025-11-21 021947.png>)
+
+Medi-Assist AI is a **multilingual medical chatbot** that provides safe, context-aware medical responses using **Retrieval Augmented Generation (RAG)**.  
+It supports **English, Hindi, Tamil, and Telugu**, and integrates:
+
+- Flask backend  
+- LangChain RAG  
+- Pinecone vector search  
+- HuggingFace multilingual embeddings  
+- Gemini 1.5 Flash  
+- MongoDB Atlas  
+- Live Medical News API  
 
 ---
 
-## 🧠 Key Technologies Used
+# Features
+
+### AI + RAG
+- Retrieves **medical knowledge** from PDFs + Wikipedia  
+- Uses **Pinecone** for high-speed vector search  
+- Uses **Gemini 1.5 Flash** as reasoning LLM  
+
+### Multilingual Chat  
+Supports: English, Hindi, Tamil, Telugu  
+
+### Medical News  
+- Fetches latest health news (NewsData.io)  
+- Provides fallback news  
+
+### Chat History  
+- Persistent conversations  
+- Load/Delete chat  
+- MongoDB Atlas storage  
+
+---
+
 
 | Component | Technology |
 |------------|-------------|
 | **Backend Framework** | Flask (Python) |
 | **LLM & RAG Orchestration** | LangChain |
 | **Large Language Model (LLM)** | Gemini 2.0 Flash (via `langchain-google-genai`) |
+| **Database** | MongoDB |
 | **Vector Database** | Pinecone |
 | **Embedding Model** | `sentence-transformers/all-MiniLM-L6-v2` (HuggingFace) |
 | **Multilingual Support** | `deep-translator` |
 | **Frontend** | HTML5, CSS3, jQuery, JavaScript |
+| **News API** | NewsData.io |
+
 
 ---
 
-## ⚙️ Setup Instructions
+# Setup Instructions
 
-### 🧩 Step 1: Clone the Repository
-
+## 1 Clone the Repository
 ```bash
-git clone https://github.com/varunchandra10/medic_chatbot.git
+git clone https://github.com/your-repo-url/medical-chatbot.git
 cd medical-chatbot
 ```
 
-*(Replace the above link with your actual GitHub repo URL)*
-
----
-
-### 🧩 Step 2: Create and Activate Virtual Environment
-
+## 2 Create Virtual Environment
 ```bash
 python -m venv venv
+source venv/bin/activate
+# or Windows:
+venv\Scripts\activate
 ```
 
-**Activate Environment:**
-
-- **Linux/macOS/Git Bash**
-  ```bash
-  source venv/Scripts/activate
-  ```
-- **Windows (Command Prompt)**
-  ```bash
-  venv\Scripts\activate.bat
-  ```
-- **Windows (PowerShell)**
-  ```bash
-  .\venv\Scripts\Activate.ps1
-  ```
-
----
-
-### 🧩 Step 3: Install Required Packages
-
+## 3 Install Dependencies
 ```bash
 pip install -r requirements.txt
 ```
 
----
-
-### 🧩 Step 4: Set Up Environment Variables
-
-Create a `.env` file in the root directory and add:
+## 4 Add Environment Variables  
+Create `.env`:
 
 ```
-PINECONE_API_KEY=your_pinecone_api_key
-GOOGLE_API_KEY=your_google_genai_api_key
+PINECONE_API_KEY="your_pine_cone_api_key"
+GOOGLE_API_KEY="your_google_api_key"
+NCBI_EMAIL="Your_NCBI_mail"             
+NCBI_API_KEY="Your_NCBI_key"     
+MONGO_URL = "your_mongo_url"
+SECRET_KEY="your_secret_key"
+NEWS_DATA_API_KEY="yours_news_api_key"
 ```
 
----
-
-### 🧩 Step 5: (Optional) Run Setup Script
-
-If you have a `template.sh` setup script:
-
+## 5 (Optional) Build Vector Index
 ```bash
-chmod +x template.sh
-./template.sh
+python store_index.py
 ```
 
----
-
-### 🧩 Step 6: Start the Flask Application
-
+## 6 Run App
 ```bash
 python app.py
 ```
-
 By default, the app runs at:  
-👉 **http://127.0.0.1:5000/**
+**http://127.0.0.1:5000/**
 
 ---
 
-## 💬 How to Use the Chatbot
+# Architecture (Clean & Simple)
 
-1. **Open the chatbot** in your browser: [http://127.0.0.1:5000](http://127.0.0.1:5000)
-2. **Select your preferred language** (English, Hindi, Tamil, or Telugu).
-3. **Enter your medical question** (e.g., "What are the symptoms of diabetes?").
-4. The chatbot will:
-   - Translate your question to English (if necessary)
-   - Retrieve relevant medical context from Pinecone
-   - Generate a concise, medically sound answer using Gemini 2.0 Flash
-   - Translate it back to your selected language
-5. **View the response** — rendered in Markdown with chat bubbles and animations.
+![architecture](simple_architecture_1.png)
 
 ---
 
-## 🎥 Demo
+# Workflow Diagram (User → AI → User)
 
-🌐 **Live Demo:** [https://your-demo-link.com](https://your-demo-link.com)  
-🎬 **Demo Video:** [https://youtu.be/your-demo-video](https://youtu.be/your-demo-video)
-
-*(Replace with your actual deployment or video demo link)*
+![uml_diagram](uml_5.png)
 
 ---
 
-## 🧩 Architecture
+## Frontend Features
 
-### 🧱 1. Data Ingestion Pipeline
-
-| Component | Files Used | Function |
-|------------|-------------|----------|
-| **Document Loading** | `helper.py` | Loads PDF files from the `data/` directory using `DirectoryLoader` and `PyPDFLoader`. |
-| **Preprocessing & Chunking** | `helper.py` | Uses `RecursiveCharacterTextSplitter` (chunk size 500, overlap 20) to split content into chunks. |
-| **Embedding** | `helper.py`, `store_index.py` | Uses `all-MiniLM-L6-v2` to embed each chunk into a 384-dimensional vector. |
-| **Vector Storage** | `store_index.py` | Stores embedded vectors in the `medical-chatbot` index in Pinecone. |
-
----
-
-### 💬 2. Query Processing Pipeline
-
-| Step | Components | Description |
-|------|-------------|-------------|
-| **1. User Input & Language** | `chat.html`, `chat.js` | User selects a language (`en`, `hi`, `ta`, `te`) and sends the message to Flask. |
-| **2. Input Translation** | `app.py` (`deep_translator`) | Converts non-English queries to English. |
-| **3. Context Retrieval** | `app.py`, `store_index.py` | Embeds the query and retrieves top-3 similar context chunks from Pinecone. |
-| **4. Answer Generation (RAG)** | `app.py`, `prompt.py` | Combines context + question and sends to Gemini 2.0 Flash to generate a medical response. |
-| **5. Output Translation** | `app.py` (`deep_translator`) | Translates the response back to the user’s chosen language. |
-| **6. Display** | `chat.js`, `app.py` | Renders Markdown-formatted output in chat UI. |
+- Dynamic Dark/Light Theme (auto + manual toggle)
+- Smooth chat animations (typing effects, transitions, autoscroll)
+- Responsive UI (mobile + desktop)
+- Markdown-rendered messages (bold, lists, links, code blocks)
+- Multilingual support
+  - English (en)
+  - Hindi (hi)
+  - Tamil (ta)
+  - Telugu (te)
+- Scrollable conversation history panel
+- Switch between conversations instantly
+- Start new chat button
+- Delete specific conversations
+- Live Medical News Feed Panel (with fallback images & headlines)
+- User-based session system (chat history isolated per user)
 
 ---
 
-## 🌐 Frontend Features
+## Backend Features
 
-- 🌗 Dynamic dark/light theming  
-- 💬 Smooth chat animations  
-- 📝 Markdown-rendered messages  
-- 🌍 Multilingual support (English, Hindi, Tamil, Telugu)  
-- 🧾 Scrollable conversation history  
+- Secure Authentication System
+  - Register (Bcrypt hashing)
+  - Login (Session-based)
+  - Logout
+  - Duplicate email prevention
+
+- AI-Powered RAG System
+  - Pinecone vector search
+  - HuggingFace multilingual embeddings
+  - Google Gemini 1.5 Flash / 2.0 Flash
+  - Context-aware medical answers
+  - Short, concise, medically-safe responses
+
+- Automatic Translation Pipeline
+  - Detect user language
+  - Translate → process in English → translate back
+  - Works reliably for Indian languages
+
+- MongoDB Atlas Storage
+  - Chat history
+  - Conversation titles
+  - User accounts
+  - Fast indexed queries
+
+- Live Medical News API
+  - Fetches latest Indian medical/health updates
+  - Falls back to static news if API fails
+
+- Graceful failure handling
+  - AI fallback message
+  - Database offline detection
+  - Translation fallback logic
+----
+
+## Deployment Features
+- Runs on Google Cloud Run
+- Automatic build from GitHub
+- Environment variables via Secret Manager
+- Fully serverless + auto-scaling
+- HTTPS enabled
+- Stateless backend with persistent DB
+---
+
+## Example Workflow
+
+1. User selects Telugu and asks: "డయాబెటిస్ లక్షణాలు ఏమిటి?"
+2. Frontend sends → { msg: "...", lang: "te" } to /get
+3. Backend translates Telugu → English → "What are the symptoms of diabetes?"
+4. Pinecone performs semantic search → Retrieves top 3 relevant medical chunks
+5. Gemini 2.0 Flash generates a safe medical answer → e.g. "The common symptoms of diabetes include increased thirst..."
+6. Backend translates English → Telugu → "డయాబెటిస్ యొక్క ప్రధాన లక్షణాలు ఇవి..."
+7. Message stored in MongoDB
+  - user message
+  - bot message
+  - language
+  - timestamp
+8. Frontend displays formatted answer
+  - With markdown
+  - With animations
+  - Auto-scroll
+  - Theme-aware styling
+9. News Panel refreshes live health headlines in chosen language
 
 ---
 
-## 🧾 Example Workflow
-
-1. User selects **Telugu** and asks: _"డయాబెటిస్ లక్షణాలు ఏమిటి?"_  
-2. Query → translated to English  
-3. Pinecone retrieves top-3 chunks  
-4. Gemini 2.0 Flash generates a concise English answer  
-5. Answer → translated back to Telugu  
-6. UI displays: _"డయాబెటిస్ యొక్క ప్రధాన లక్షణాలు ఇవి..."_
-
----
-
-## 🛠️ Folder Structure
+# Folder Structure
 
 ```
 medical-chatbot/
 │
 ├── app.py
-├── helper.py
 ├── store_index.py
-├── prompt.py
 ├── requirements.txt
-├── template.sh
 │
-├── data/                  # PDF documents for ingestion
-├── static/                # CSS, JS, images
-├── templates/             # HTML templates (chat.html)
-└── venv/                  # Virtual environment
+├── src/
+│   ├── db.py
+│   ├── helper.py
+│   ├── translator.py
+│   ├── medical_news.py
+│
+├── static/
+│   ├── chat.js
+│   ├── chat.css
+│
+├── templates/
+│   ├── chat.html
+│   ├── login.html
+│   ├── register.html
+│
+└── data/ medical related pdfs
 ```
 
 ---
 
 ## 🧑‍💻 API Endpoints
 
-| Endpoint | Method | Description |
-|-----------|---------|-------------|
-| `/` | GET | Loads chat UI |
-| `/get` | POST | Accepts JSON `{ msg, lang }`, returns translated AI response |
 
----
+| Endpoint                         | Method | Description                                                                  |
+| -------------------------------- | ------ | ---------------------------------------------------------------------------- |
+| `/`                              | GET    | Loads chat UI (requires login)                                               |
+| `/get`                           | POST   | Accepts `{ msg, lang }`, runs translation → RAG → response, returns AI reply |
+| `/register`                      | GET    | Loads registration page                                                      |
+| `/register`                      | POST   | Creates a new user (name, email, password, age)                              |
+| `/login`                         | GET    | Loads login page                                                             |
+| `/login`                         | POST   | Authenticates user and starts session                                        |
+| `/logout`                        | POST   | Logs out user and clears session                                             |
+| `/conversations`                 | GET    | Returns list of user conversations (id, title, timestamp)                    |
+| `/conversation/<conv_id>`        | GET    | Loads all messages of a specific conversation                                |
+| `/conversation/delete/<conv_id>` | POST   | Deletes a specific conversation and all its messages                         |
+| `/end_chat`                      | POST   | Starts a brand-new chat (creates new conversation ID)                        |
+| `/news`                          | GET    | Fetches latest medical news (with fallback data)                             |
 
-## 💡 Future Improvements
 
-- ⏱️ Streamed responses (real-time output)  
-- 🗣️ Voice input/output support  
-- 🧾 Multi-document summarization  
-- 💻 UI upgrade using React or Vue  
-- 🩺 Integration with live medical databases  
+# 👨‍⚕️ Authors
 
----
+Team RTX — Pondicherry University
+- Kola Varun Chandra  
+- Anabhyan S  
+- Sri Gurubhaguvela D  
 
-## 🧑‍⚕️ Author
-
-**Developed by:** Team RTX  
-**Team Members:** Kola Varun Chandra, Anabhyan S, Sri Gurubhaguvela D  
-**GitHub:** [https://github.com/YourGitHubProfile](https://github.com/YourGitHubProfile)  
-**Email:** kvarunchandra19@gmail.com  
-
----
-
-🩺 _A multilingual AI-powered assistant designed to make healthcare knowledge accessible to everyone._
+📧 Email: **kvarunchandra19@gmail.com**

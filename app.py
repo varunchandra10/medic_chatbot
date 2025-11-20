@@ -137,7 +137,7 @@ try:
     )
     retriever = vectorstore.as_retriever(search_kwargs={"k": 3})
 
-    llm = ChatGoogleGenerativeAI(model="gemini-1.5-flash", temperature=0.3)
+    llm = ChatGoogleGenerativeAI(model="gemini-2.0-flash", temperature=0.3)
 
     prompt = ChatPromptTemplate.from_messages(
         [("system", SYSTEM_PROMPT), ("human", "{input}")]
@@ -269,6 +269,55 @@ def logout():
 # ================================================================
 # 6. ROUTES: CHAT & HISTORY
 # ================================================================
+# @app.route("/get", methods=["POST"])
+# def chat():
+#     user_id = session["user_id"]
+#     conversation_id = get_current_conversation_id()
+#     user_message = request.form["msg"]
+#     lang = request.form.get("lang", "en")
+
+#     # Save user message
+#     history_collection.insert_one(
+#         {
+#             "user_id": user_id,
+#             "conversation_id": conversation_id,
+#             "role": "user",
+#             "message": user_message,
+#             "lang": lang,
+#             "timestamp": datetime.now(timezone.utc),
+#         }
+#     )
+
+#     try:
+#         # Translate to English for RAG
+#         query_en = user_message if lang == "en" else translate(user_message, "en", lang)
+
+#         # Get AI response
+#         result = rag_chain.invoke({"input": query_en})
+#         answer_en = result.get("answer", "I'm not sure how to help with that.")
+
+#         # Translate back to user language
+#         answer = answer_en if lang == "en" else translate(answer_en, lang)
+
+#     except Exception as e:
+#         print("Chat error:", e)
+#         answer = "Sorry, something went wrong. Please try again."
+
+#     # Save bot response
+#     history_collection.insert_one(
+#         {
+#             "user_id": user_id,
+#             "conversation_id": conversation_id,
+#             "role": "bot",
+#             "message": answer,
+#             "lang": lang,
+#             "timestamp": datetime.now(timezone.utc),
+#         }
+#     )
+
+#     return answer
+
+
 @app.route("/get", methods=["POST"])
 def chat():
     user_id = session["user_id"]
@@ -289,21 +338,47 @@ def chat():
     )
 
     try:
-        # Translate to English for RAG
+        # 1️⃣ Translate to English (internal processing language)
         query_en = user_message if lang == "en" else translate(user_message, "en", lang)
 
-        # Get AI response
-        result = rag_chain.invoke({"input": query_en})
-        answer_en = result.get("answer", "I'm not sure how to help with that.")
+        # 2️⃣ Manually retrieve relevant docs
+        retrieved_docs = retriever.get_relevant_documents(query_en)
 
-        # Translate back to user language
+        # 3️⃣ Decide whether to use RAG or fallback
+        similarity_threshold = 0.25
+        use_rag = False
+
+        if retrieved_docs:
+            # Try to read similarity score
+            top_score = retrieved_docs[0].metadata.get("score", None)
+
+            if top_score is None:
+                # If score missing, assume retriever supports only content → try RAG
+                use_rag = True
+            else:
+                use_rag = top_score >= similarity_threshold
+
+        else:
+            use_rag = False
+
+        # 4️⃣ Fallback: no context or low score → direct Gemini
+        if not use_rag:
+            print("⚠️ No relevant context found → Direct Gemini fallback")
+            llm_response = llm.invoke(query_en)
+            answer_en = llm_response.content
+        else:
+            print("✅ Context found → Using RAG pipeline")
+            rag_result = rag_chain.invoke({"input": query_en})
+            answer_en = rag_result.get("answer", "I'm not sure how to help with that.")
+
+        # 5️⃣ Translate back to user's chosen language
         answer = answer_en if lang == "en" else translate(answer_en, lang)
 
     except Exception as e:
         print("Chat error:", e)
         answer = "Sorry, something went wrong. Please try again."
 
-    # Save bot response
+    # Save bot message
     history_collection.insert_one(
         {
             "user_id": user_id,
@@ -403,28 +478,28 @@ def get_news():
                 "summary": "Free testing camps in 500+ districts starting December 2025...",
                 "link": "https://pib.gov.in",
                 "published": "2025-11-20",
-                "image": "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=800&q=80"  # Real medical image
+                "image": "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=800&q=80",  # Real medical image
             },
             {
                 "title": "Breakthrough in cancer immunotherapy research",
                 "summary": "Indian scientists develop affordable CAR-T cell therapy...",
                 "link": "https://thehindu.com/sci-tech/health",
                 "published": "2025-11-19",
-                "image": "https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?w=800&q=80"
+                "image": "https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?w=800&q=80",
             },
             {
                 "title": "New hypertension guidelines released by ICMR",
                 "summary": "Updated blood pressure targets for Indian population...",
                 "link": "https://icmr.gov.in",
                 "published": "2025-11-18",
-                "image": "https://images.unsplash.com/photo-1559757148-5c350d575016?w=800&q=80"
+                "image": "https://images.unsplash.com/photo-1559757148-5c350d575016?w=800&q=80",
             },
             {
                 "title": "COVID nasal vaccine gets emergency approval",
                 "summary": "Bharat Biotech's iNCOVACC now available across India...",
                 "link": "https://ndtv.com/health",
                 "published": "2025-11-17",
-                "image": "https://images.unsplash.com/photo-1612277795508-6b200b0e5d4b?w=800&q=80"
+                "image": "https://images.unsplash.com/photo-1612277795508-6b200b0e5d4b?w=800&q=80",
             },
         ]
         news = fallback_news

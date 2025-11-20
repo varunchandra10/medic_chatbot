@@ -1,123 +1,274 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
-    <title>Medi-Assist AI | Register</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Tailwind CSS CDN -->
+    <title>Medi-Assist AI | Create Account</title>
+
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Inter Font -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.10/dist/full.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="icon" href="{{ url_for('static', filename='logo.png') }}" type="image/png">
+
     <style>
-        /* Ensuring Inter font and dark mode colors are active */
-        body { 
-            font-family: 'Inter', sans-serif; 
-            background-color: #111827; /* Gray-900 background */
-            color: #f9fafb;
-        }
-        .auth-card { 
-            box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.6); 
-            background-color: #1f2937; /* Gray-800 card color */
-        }
-        .form-group label {
-            color: #d1d5db; /* Gray-300 labels */
-        }
-        .form-group input {
-            background-color: #374151; /* Gray-700 input background */
-            border-color: #4b5563; /* Gray-600 border */
-            color: #f9fafb;
-            transition: all 0.2s;
-        }
-        .form-group input:focus {
-            ring: 2px;
-            ring-color: #4f46e5; /* Indigo-600 focus ring */
-            border-color: #4f46e5;
-        }
-        .btn {
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+        body { font-family: 'Inter', sans-serif; }
+        .poppins { font-family: 'Poppins', sans-serif; }
+        .bg-gradient { background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%); }
+        .glass { background: rgba(31, 41, 55, 0.45); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(99, 102, 241, 0.3); }
+        @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-20px)} }
+        .float { animation: float 6s ease-in-out infinite; }
+        .logo-glow { filter: drop-shadow(0 0 30px rgba(99, 102, 241, 0.8)); animation: pulseGlow 4s infinite; }
+        @keyframes pulseGlow { 0%,100%{filter:drop-shadow(0 0 20px rgba(99,102,241,0.6))} 50%{filter:drop-shadow(0 0 40px rgba(99,102,241,1))} }
+
+        /* ✅ FIX: Allow typing in inputs (icons were blocking input focus) */
+        .input-icon {
+            pointer-events: none !important;
         }
     </style>
 </head>
-<body class="flex items-center justify-center min-h-screen">
+<body class="bg-gradient min-h-screen flex flex-col items-center justify-center px-4 py-8">
 
-    <!-- Auth Card: Modern, Dark, Rounded -->
-    <div class="auth-card w-full max-w-lg p-8 space-y-6 rounded-xl">
-        <div class="text-center">
-            <h2 class="text-3xl font-bold text-white tracking-tight">Create Account</h2>
-            <p class="subtitle text-lg font-medium text-gray-400 mt-2">Join Medi-Assist AI today</p>
+    <!-- MOBILE: Logo + Title at Top -->
+    <div class="lg:hidden text-center mb-10">
+        <div class="flex flex-col items-center gap-3">
+            <div class="w-20 h-20 float">
+                <img src="/static/logo.png" alt="Medi-Assist AI" class="w-full h-full object-contain logo-glow">
+            </div>
+            <h1 class="text-4xl font-bold poppins bg-gradient-to-r from-cyan-300 to-indigo-300 bg-clip-text text-transparent">
+                Medi-Assist AI
+            </h1>
+            <p class="text-lg text-cyan-200">Join Your Health Companion</p>
         </div>
-
-        <div class="space-y-4">
-            <div class="form-group">
-                <label class="block text-sm font-medium mb-1">Full Name</label>
-                <input id="name" type="text" placeholder="Enter your name" required
-                    class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 sm:text-sm">
-            </div>
-
-            <div class="form-group">
-                <label class="block text-sm font-medium mb-1">Email</label>
-                <input id="email" type="email" placeholder="user@example.com" required
-                    class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 sm:text-sm">
-            </div>
-            
-            <div class="form-group">
-                <label class="block text-sm font-medium mb-1">Age</label>
-                <input id="age" type="number" placeholder="Your age" required
-                    class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 sm:text-sm">
-            </div>
-
-            <div class="form-group">
-                <label class="block text-sm font-medium mb-1">Password</label>
-                <input id="password" type="password" placeholder="Create a secure password" required
-                    class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 sm:text-sm">
-            </div>
-        </div>
-
-        <!-- Register Button with Indigo Theme -->
-        <button class="btn w-full flex justify-center py-3 px-4 rounded-lg text-base font-semibold text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 focus:ring-offset-gray-800 transition duration-150 ease-in-out" id="registerBtn">
-            Register
-        </button>
-
-        <p class="switch-text text-center text-sm text-gray-400">
-            Already have an account?
-            <a href="/login" class="font-medium text-indigo-400 hover:text-indigo-300 transition duration-150">Login Here</a>
-        </p>
-
-        <!-- Message Area -->
-        <p id="msg" class="text-center text-sm font-medium pt-2 h-5"></p>
     </div>
 
-<script>
-$("#registerBtn").click(function() {
-    const payload = {
-        name: $("#name").val(),
-        email: $("#email").val(),
-        password: $("#password").val(),
-        age: $("#age").val()
-    };
-    const msgEl = $("#msg");
-    
-    // Set loading state visually
-    msgEl.removeClass("text-red-400 text-green-400").addClass("text-gray-400").text("Creating account...");
+    <!-- MAIN CONTAINER -->
+    <div class="w-full max-w-7xl">
 
-    $.ajax({
-        url: "/register",
-        method: "POST",
-        contentType: "application/json",
-        data: JSON.stringify(payload),
-        success: function(res) {
-            msgEl.removeClass("text-gray-400").addClass("text-green-400").text(res.message);
-            // Redirect to login after successful registration
-            setTimeout(() => { window.location.href = res.redirect_url || "/login"; }, 1000);
-        },
-        error: function(err) {
-            const message = err.responseJSON ? err.responseJSON.message : "Connection error.";
-            msgEl.removeClass("text-gray-400").addClass("text-red-400").text(message);
+        <!-- LARGE SCREEN: 50/50 Layout -->
+        <div class="hidden lg:grid lg:grid-cols-2 gap-0 rounded-3xl overflow-hidden shadow-2xl">
+
+            <!-- LEFT HERO SECTION -->
+            <div class="bg-gradient-to-br from-indigo-900 via-purple-900 to-indigo-950 p-12 lg:p-16 flex flex-col justify-center text-white relative overflow-hidden">
+                <div class="absolute inset-0 opacity-30">
+                    <div class="absolute top-20 left-20 w-96 h-96 bg-indigo-600 rounded-full filter blur-3xl"></div>
+                    <div class="absolute bottom-10 right-10 w-80 h-80 bg-purple-600 rounded-full filter blur-3xl"></div>
+                </div>
+
+                <div class="relative z-10 max-w-lg">
+                    <div class="flex items-center gap-6 mb-10">
+                        <div class="w-24 h-24 float">
+                            <img src="/static/logo.png" alt="Medi-Assist AI" class="w-full h-full object-contain logo-glow">
+                        </div>
+                        <div>
+                            <h1 class="text-6xl font-bold poppins bg-gradient-to-r from-cyan-300 to-indigo-300 bg-clip-text text-transparent">
+                                Medi-Assist AI
+                            </h1>
+                            <p class="text-xl text-cyan-200 font-medium">Your Health. Our Intelligence.</p>
+                        </div>
+                    </div>
+
+                    <p class="text-2xl font-semibold mb-6 text-gray-100">Your 24/7 AI Health Companion</p>
+                    <p class="text-lg text-gray-300 mb-10">Get personalized medical insights, multilingual support, and real-time health updates — all in one secure place.</p>
+
+                    <div class="grid grid-cols-1 gap-6 text-sm">
+                        <div class="flex items-center gap-4"><i class="fas fa-brain text-cyan-400 text-2xl"></i><span class="text-gray-300">RAG-Powered Medical Intelligence</span></div>
+                        <div class="flex items-center gap-4"><i class="fas fa-language text-purple-400 text-2xl"></i><span class="text-gray-300">हिंदी • தமிழ் • తెలుగు • English</span></div>
+                        <div class="flex items-center gap-4"><i class="fas fa-newspaper text-green-400 text-2xl"></i><span class="text-gray-300">Latest Health News from India</span></div>
+                        <div class="flex items-center gap-4"><i class="fas fa-shield-alt text-pink-400 text-2xl"></i><span class="text-gray-300">100% Private & Encrypted</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RIGHT REGISTER FORM -->
+            <div class="bg-gray-900/95 p-16 flex items-center justify-center">
+                <div class="w-full max-w-md mx-auto">
+                    <div class="glass rounded-3xl p-10 shadow-2xl border border-indigo-500/20">
+                        <div class="text-center mb-8">
+                            <h2 class="text-4xl font-bold text-white mb-2">Create Account</h2>
+                            <p class="text-gray-400">Join thousands of healthy Indians</p>
+                        </div>
+
+                        <div class="space-y-6">
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-300 mb-2">Full Name</label>
+                                <div class="relative">
+                                    <span class="absolute inset-y-0 left-0 pl-5 flex items-center text-indigo-400 input-icon">
+                                        <i class="fas fa-user text-xl"></i>
+                                    </span>
+                                    <input id="name" type="text" placeholder="your name" required class="w-full pl-14 pr-5 py-4 bg-gray-800/70 border border-gray-700 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/30 transition-all">
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-300 mb-2">Email Address</label>
+                                <div class="relative">
+                                    <span class="absolute inset-y-0 left-0 pl-5 flex items-center text-indigo-400 input-icon">
+                                        <i class="fas fa-envelope text-xl"></i>
+                                    </span>
+                                    <input id="email" type="email" placeholder="you@example.com" required class="w-full pl-14 pr-5 py-4 bg-gray-800/70 border border-gray-700 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/30 transition-all">
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-300 mb-2">Age</label>
+                                <div class="relative">
+                                    <span class="absolute inset-y-0 left-0 pl-5 flex items-center text-indigo-400 input-icon">
+                                        <i class="fas fa-calendar-alt text-xl"></i>
+                                    </span>
+                                    <input id="age" type="number" min="1" max="120" placeholder="35" required class="w-full pl-14 pr-5 py-4 bg-gray-800/70 border border-gray-700 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/30 transition-all">
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-300 mb-2">Password</label>
+                                <div class="relative">
+                                    <span class="absolute inset-y-0 left-0 pl-5 flex items-center text-indigo-400 input-icon">
+                                        <i class="fas fa-lock text-xl"></i>
+                                    </span>
+                                    <input id="password" type="password" placeholder="••••••••••••" required class="w-full pl-14 pr-5 py-4 bg-gray-800/70 border border-gray-700 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/30 transition-all">
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <button id="registerBtn" class="mt-8 w-full py-4 rounded-xl font-bold text-lg text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 transform hover:scale-105 transition-all duration-300 shadow-xl">
+                            Create Account
+                        </button>
+
+                        <p class="mt-6 text-center text-gray-400">
+                            Already have an account? 
+                            <a href="/login" class="font-bold text-indigo-400 hover:text-cyan-400 transition">Login Here</a>
+                        </p>
+
+                        <p id="msg" class="mt-4 text-center font-medium h-6"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- MOBILE REGISTER FORM -->
+        <div class="lg:hidden w-full max-w-md mx-auto">
+            <div class="glass rounded-3xl p-8 shadow-2xl border border-indigo-500/20">
+                <div class="text-center mb-8">
+                    <h2 class="text-3xl font-bold text-white mb-2">Create Account</h2>
+                    <p class="text-gray-400">Join your health companion</p>
+                </div>
+
+                <div class="space-y-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Full Name</label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 pl-5 flex items-center text-indigo-400 input-icon">
+                                <i class="fas fa-user"></i>
+                            </span>
+                            <input id="name-mobile" type="text" placeholder="Your name" required class="w-full pl-14 pr-5 py-4 bg-gray-800/70 border border-gray-700 rounded-xl text-white placeholder-gray-500">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Email</label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 pl-5 flex items-center text-indigo-400 input-icon">
+                                <i class="fas fa-envelope"></i>
+                            </span>
+                            <input id="email-mobile" type="email" placeholder="you@example.com" required class="w-full pl-14 pr-5 py-4 bg-gray-800/70 border border-gray-700 rounded-xl text-white placeholder-gray-500">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Age</label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 pl-5 flex items-center text-indigo-400 input-icon">
+                                <i class="fas fa-calendar-alt"></i>
+                            </span>
+                            <input id="age-mobile" type="number" placeholder="35" required class="w-full pl-14 pr-5 py-4 bg-gray-800/70 border border-gray-700 rounded-xl text-white placeholder-gray-500">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Password</label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 pl-5 flex items-center text-indigo-400 input-icon">
+                                <i class="fas fa-lock"></i>
+                            </span>
+                            <input id="password-mobile" type="password" placeholder="•••••••" required class="w-full pl-14 pr-5 py-4 bg-gray-800/70 border border-gray-700 rounded-xl text-white placeholder-gray-500">
+                        </div>
+                    </div>
+                </div>
+
+                <button id="registerBtn-mobile" class="mt-8 w-full py-4 rounded-xl font-bold text-lg text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 transform hover:scale-105 transition-all duration-300 shadow-xl">
+                    Create Account
+                </button>
+
+                <p class="mt-6 text-center text-gray-400">
+                    Already registered? 
+                    <a href="/login" class="font-bold text-indigo-400 hover:text-cyan-400">Login Here</a>
+                </p>
+                <p id="msg-mobile" class="mt-4 text-center font-medium h-6"></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- jQuery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
+    <script>
+        function performRegister(nameId, emailId, ageId, passId, msgId, btnId) {
+            $(btnId).click(function() {
+                const payload = {
+                    name: $(nameId).val().trim(),
+                    email: $(emailId).val().trim(),
+                    age: $(ageId).val(),
+                    password: $(passId).val()
+                };
+
+                if (!payload.name || !payload.email || !payload.age || !payload.password) {
+                    $(msgId).removeClass("text-green-400")
+                            .addClass("text-red-400")
+                            .text("Please fill all fields");
+                    return;
+                }
+
+                $(msgId).removeClass("text-red-400 text-green-400")
+                        .addClass("text-indigo-400")
+                        .text("Creating your account...");
+
+                $.ajax({
+                    url: "/register",
+                    method: "POST",
+                    contentType: "application/json",
+                    data: JSON.stringify(payload),
+
+                    success: function(res) {
+                        $(msgId).removeClass("text-indigo-400")
+                                .addClass("text-green-400")
+                                .text(res.message || "Account created!");
+
+                        setTimeout(() => window.location.href = res.redirect_url || "/login", 1500);
+                    },
+
+                    error: function(err) {
+                        const msg = err.responseJSON?.message || "Registration failed";
+                        $(msgId).removeClass("text-indigo-400")
+                                .addClass("text-red-400")
+                                .text(msg);
+                    }
+                });
+            });
         }
-    });
-});
-</script>
+
+        performRegister("#name", "#email", "#age", "#password", "#msg", "#registerBtn");
+        performRegister("#name-mobile", "#email-mobile", "#age-mobile", "#password-mobile", "#msg-mobile", "#registerBtn-mobile");
+
+        $(document).keypress(e => {
+            if (e.which === 13) {
+                if (window.innerWidth >= 1024) $("#registerBtn").click();
+                else $("#registerBtn-mobile").click();
+            }
+        });
+    </script>
 
 </body>
 </html>
