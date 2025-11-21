@@ -2,7 +2,7 @@
 
 ## Demo
 
-**Live Demo:** [https://medic-chatbot-567649654632.europe-west1.run.app/login](https://medic-chatbot-567649654632.europe-west1.run.app/login)  
+**Live Demo:** [https://medi-assistant-1043539290394.europe-west1.run.app/login](https://medic-chatbot-567649654632.europe-west1.run.app/login)  
 
 ![example_demo_image](<Screenshot 2025-11-21 021947.png>)
 
