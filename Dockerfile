@@ -1,23 +1,37 @@
-# Use official lightweight Python image
-FROM python:3.10-slim
+# Stable Debian-based Python image (NOT slim)
+FROM python:3.10-bullseye
 
 # Set working directory
 WORKDIR /app
 
-# Install system dependencies
+# Install system-level dependencies required by HF, Pinecone, google-generativeai
 RUN apt-get update && \
-    apt-get install -y build-essential && \
-    apt-get clean
+    apt-get install -y --no-install-recommends \
+    build-essential \
+    python3-dev \
+    gcc \
+    g++ \
+    git \
+    curl \
+    libssl-dev \
+    libffi-dev \
+    libstdc++6 \
+    && rm -rf /var/lib/apt/lists/*
 
-# Copy app files
-COPY . .
+# Copy requirements first (better caching)
+COPY requirements.txt .
 
-# Install Python dependencies
+# Install Python deps
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Expose the port Cloud Run uses
-ENV PORT 8080
+# Copy the rest of the app
+COPY . .
+
+# Cloud Run uses PORT env
+ENV PORT=8080
+
+# Expose port
 EXPOSE 8080
 
-# Run the app
+# Start Flask
 CMD ["python", "app.py"]
