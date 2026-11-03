@@ -1,8 +1,8 @@
-# Medi-Assist AI: Multilingual Medical Chatbot (Flask + LangChain + Gemini + Pinecone)
+﻿# Medi-Assist AI: Multilingual Medical Chatbot (Flask + LangChain + Gemini + Pinecone)
 
 ## Demo
 
-![example_demo_image](<Screenshot 2025-11-21 021947.png>)
+![example_demo_image](docs/images/demo.png)
 
 Medi-Assist AI is a **multilingual medical chatbot** that provides safe, context-aware medical responses using **Retrieval Augmented Generation (RAG)**.  
 It supports **English, Hindi, Tamil, and Telugu**, and integrates:
@@ -90,12 +90,12 @@ NEWS_DATA_API_KEY="yours_news_api_key"
 
 ## 5 (Optional) Build Vector Index
 ```bash
-python store_index.py
+python backend/store_index.py
 ```
 
 ## 6 Run App
 ```bash
-python app.py
+python backend/app.py
 ```
 By default, the app runs at:  
 **http://127.0.0.1:5000/**
@@ -104,13 +104,13 @@ By default, the app runs at:
 
 # Architecture (Clean & Simple)
 
-![architecture](simple_architecture_1.png)
+![architecture](docs/images/architecture.png)
 
 ---
 
-# Workflow Diagram (User → AI → User)
+# Workflow Diagram (User â†’ AI â†’ User)
 
-![uml_diagram](uml_5.png)
+![uml_diagram](docs/images/uml_diagram.png)
 
 ---
 
@@ -151,7 +151,7 @@ By default, the app runs at:
 
 - Automatic Translation Pipeline
   - Detect user language
-  - Translate → process in English → translate back
+  - Translate â†’ process in English â†’ translate back
   - Works reliably for Indian languages
 
 - MongoDB Atlas Storage
@@ -181,12 +181,12 @@ By default, the app runs at:
 
 ## Example Workflow
 
-1. User selects Telugu and asks: "డయాబెటిస్ లక్షణాలు ఏమిటి?"
-2. Frontend sends → { msg: "...", lang: "te" } to /get
-3. Backend translates Telugu → English → "What are the symptoms of diabetes?"
-4. Pinecone performs semantic search → Retrieves top 3 relevant medical chunks
-5. Gemini 2.0 Flash generates a safe medical answer → e.g. "The common symptoms of diabetes include increased thirst..."
-6. Backend translates English → Telugu → "డయాబెటిస్ యొక్క ప్రధాన లక్షణాలు ఇవి..."
+1. User selects Telugu and asks: "à°¡à°¯à°¾à°¬à±†à°Ÿà°¿à°¸à± à°²à°•à±à°·à°£à°¾à°²à± à°à°®à°¿à°Ÿà°¿?"
+2. Frontend sends â†’ { msg: "...", lang: "te" } to /get
+3. Backend translates Telugu â†’ English â†’ "What are the symptoms of diabetes?"
+4. Pinecone performs semantic search â†’ Retrieves top 3 relevant medical chunks
+5. Gemini 2.0 Flash generates a safe medical answer â†’ e.g. "The common symptoms of diabetes include increased thirst..."
+6. Backend translates English â†’ Telugu â†’ "à°¡à°¯à°¾à°¬à±†à°Ÿà°¿à°¸à± à°¯à±Šà°•à±à°• à°ªà±à°°à°§à°¾à°¨ à°²à°•à±à°·à°£à°¾à°²à± à°‡à°µà°¿..."
 7. Message stored in MongoDB
   - user message
   - bot message
@@ -205,38 +205,38 @@ By default, the app runs at:
 
 ```
 medical-chatbot/
-│
-├── app.py
-├── store_index.py
-├── requirements.txt
-│
-├── src/
-│   ├── db.py
-│   ├── helper.py
-│   ├── translator.py
-│   ├── medical_news.py
-│
-├── static/
-│   ├── chat.js
-│   ├── chat.css
-│
-├── templates/
-│   ├── chat.html
-│   ├── login.html
-│   ├── register.html
-│
-└── data/ medical related pdfs
+â”‚
+â”œâ”€â”€ app.py
+â”œâ”€â”€ store_index.py
+â”œâ”€â”€ requirements.txt
+â”‚
+â”œâ”€â”€ src/
+â”‚   â”œâ”€â”€ db.py
+â”‚   â”œâ”€â”€ helper.py
+â”‚   â”œâ”€â”€ translator.py
+â”‚   â”œâ”€â”€ medical_news.py
+â”‚
+â”œâ”€â”€ static/
+â”‚   â”œâ”€â”€ chat.js
+â”‚   â”œâ”€â”€ chat.css
+â”‚
+â”œâ”€â”€ templates/
+â”‚   â”œâ”€â”€ chat.html
+â”‚   â”œâ”€â”€ login.html
+â”‚   â”œâ”€â”€ register.html
+â”‚
+â””â”€â”€ data/ medical related pdfs
 ```
 
 ---
 
-## 🧑‍💻 API Endpoints
+## ðŸ§‘â€ðŸ’» API Endpoints
 
 
 | Endpoint                         | Method | Description                                                                  |
 | -------------------------------- | ------ | ---------------------------------------------------------------------------- |
 | `/`                              | GET    | Loads chat UI (requires login)                                               |
-| `/get`                           | POST   | Accepts `{ msg, lang }`, runs translation → RAG → response, returns AI reply |
+| `/get`                           | POST   | Accepts `{ msg, lang }`, runs translation â†’ RAG â†’ response, returns AI reply |
 | `/register`                      | GET    | Loads registration page                                                      |
 | `/register`                      | POST   | Creates a new user (name, email, password, age)                              |
 | `/login`                         | GET    | Loads login page                                                             |
@@ -249,11 +249,11 @@ medical-chatbot/
 | `/news`                          | GET    | Fetches latest medical news (with fallback data)                             |
 
 
-# 👨‍⚕️ Authors
+# ðŸ‘¨â€âš•ï¸ Authors
 
-Team RTX — Pondicherry University
+Team RTX â€” Pondicherry University
 - Kola Varun Chandra  
 - Anabhyan S  
 - Sri Gurubhaguvela D  
 
-📧 Email: **kvarunchandra19@gmail.com**
+ðŸ“§ Email: **kvarunchandra19@gmail.com**

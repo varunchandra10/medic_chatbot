@@ -1,2 +1,63 @@
-.env.local
+# Environments & Secrets
+.env
+.env.*
+!.env.example
+
+# Virtual Environments
+.venv/
 venv/
+medical_chatbot_venv/
+env/
+ENV/
+
+# Python Cache, Bytecode & Testing
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+.benchmarks/
+
+# Large Datasets & Local Media
+data/*.pdf
+*.png
+*.jpg
+*.jpeg
+
+# Local Vector Database & SQLite
+data/vectorstore/
+data/*.db
+data/processed_chunks/
+
+# Academic Papers & Draft Manuscripts (Private/Published)
+*.docx
+*.doc
+*.pptx
+*paper*
+*PAPER*
+paper_skeleton.md
+medical_chatbot.md
+docs/research/
+research/*.docx
+research/*.doc
+research/*paper*
+research/*PAPER*
+research/ENGLISH
+research/testing.ipynb
+research/trials.ipynb
+
+# Frontend Build & Node Modules
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+
+# Mobile App Build & Dependencies (React Native / Expo)
+mobile_app/node_modules/
+mobile_app/.expo/
+mobile_app/dist/
+mobile_app/web-build/
+mobile_app/android/
+mobile_app/ios/
+*.apk
+*.aab
+*.ipa
