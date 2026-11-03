@@ -4,7 +4,7 @@
 
 **Live Demo:** [https://medi-assistant-1043539290394.europe-west1.run.app/login](https://medic-chatbot-567649654632.europe-west1.run.app/login)  
 
-![example_demo_image](<Screenshot 2025-11-21 021947.png>)
+![example_demo_image](docs/images/demo.png)
 
 Medi-Assist AI is a **multilingual medical chatbot** that provides safe, context-aware medical responses using **Retrieval Augmented Generation (RAG)**.  
 It supports **English, Hindi, Tamil, and Telugu**, and integrates:
@@ -92,12 +92,12 @@ NEWS_DATA_API_KEY="yours_news_api_key"
 
 ## 5 (Optional) Build Vector Index
 ```bash
-python store_index.py
+python backend/store_index.py
 ```
 
 ## 6 Run App
 ```bash
-python app.py
+python backend/app.py
 ```
 By default, the app runs at:  
 **http://127.0.0.1:5000/**
@@ -106,13 +106,13 @@ By default, the app runs at:
 
 # Architecture (Clean & Simple)
 
-![architecture](simple_architecture_1.png)
+![architecture](docs/images/architecture.png)
 
 ---
 
 # Workflow Diagram (User → AI → User)
 
-![uml_diagram](uml_5.png)
+![uml_diagram](docs/images/uml_diagram.png)
 
 ---
 

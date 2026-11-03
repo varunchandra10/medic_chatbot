@@ -1,0 +1,12 @@
+.git
+.env*
+venv
+medical_chatbot_venv
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+data/
+research/
+notebooks/
+*.md

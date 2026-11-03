@@ -1,0 +1,17 @@
+{
+  "CURRENT_Medical_Diagnosis_and_Treatment.pdf": {
+    "hash": "dc3938179fabd42001131532bc8ef3d44575be8fd5f45558806f201a7804ab1f",
+    "chunk_count": 12447,
+    "updated_at": "2026-11-02 20:43:31"
+  },
+  "Manual_of_Medicine.pdf": {
+    "hash": "322aa9edcb7f0bb5c15b54e9dc9faa3becc6e5f18b21cf9ac1ef590b02dcb681",
+    "chunk_count": 3990,
+    "updated_at": "2026-11-02 20:49:38"
+  },
+  "Medical_book.pdf": {
+    "hash": "753cd53b7a3020bbd91f05629b0e3ddcfb6a114d7bbedb22c2298b66f5dd00cc",
+    "chunk_count": 3275,
+    "updated_at": "2026-11-02 20:53:31"
+  }
+}
